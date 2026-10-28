@@ -1,0 +1,28 @@
+{
+  "name": "personal-ai-workspace",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "engines": {
+    "node": ">=22.13"
+  },
+  "scripts": {
+    "build": "node scripts/build.mjs",
+    "start": "node scripts/serve.mjs",
+    "test": "node scripts/test.mjs",
+    "check:public": "node scripts/check-public.mjs",
+    "package:sites": "npm run build && npm run check:public && node scripts/package-sites.mjs",
+    "mcp": "node dist/mcp.mjs"
+  },
+  "dependencies": {
+    "dompurify": "3.4.17",
+    "lucide-react": "1.31.0",
+    "marked": "18.1.1",
+    "react": "19.2.6",
+    "react-dom": "19.2.6",
+    "yaml": "2.9.1"
+  },
+  "devDependencies": {
+    "esbuild": "0.25.12"
+  }
+}

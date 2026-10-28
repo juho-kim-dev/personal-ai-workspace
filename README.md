@@ -1,62 +1,75 @@
 # Personal AI Workspace (PAW)
 
-**Personal tools for keeping conversations, knowledge and documents useful to both people and AI.**
+**Keep the source. Connect the context. Continue the work.**
 
-[한국어](README.ko.md) · [Author](https://github.com/juho-kim-dev)
+[한국어](README.ko.md) · [Architecture](docs/ARCHITECTURE.md) · [Evidence & limits](docs/CV-EVIDENCE.md) · [Sites deployment](docs/DEPLOY-SITES.md)
 
-PAW is a collection of independently developed web applications. It addresses a recurring problem in my own work: useful material is scattered across AI conversations, notes and files, and becomes difficult to find or safely edit later.
+PAW is an AI-assisted collection of personal tools for conversations, notes, knowledge, documents, visual references and media. This repository publishes selected implementation modules and an interactive six-role reference demo with entirely synthetic content.
 
-I develop these tools with AI assistance, working on application behavior, data preservation, tool interfaces and verification. Each application retains its own data model and storage; PAW is not a single shared database or a finished end-to-end autonomous platform.
+The underlying applications remain independent, with their own data models and storage. This static demo composes selected behaviors; it is not a shared production database, autonomous agent, or copy of private workspaces.
 
-## What I built
+![Public reference demo](docs/screenshots/overview.jpg)
 
-| Area | Implementation focus | Why it matters |
-| --- | --- | --- |
-| Conversation archive | Import public ChatGPT share links, preserve source revisions and message links, search and read through browser and MCP/WebMCP interfaces | People and AI can return to the same source and its context |
-| Resumable collection | Persist collection state and handle retries without duplicating imports | Interrupted work can continue without starting over |
-| Knowledge editing | Bind edit proposals to a document revision and reject stale proposals | An older edit cannot silently overwrite a newer version |
-| Note recovery | Preserve unsaved drafts and check the original content and revision before restoring | Conflicting work can be retained separately instead of overwriting the server copy |
-| Document editing | Extend an open-source HWP/HWPX editor with shared UI and AI commands; check saved documents by reopening them | Editing and tool calls follow the same document operations |
+## Run it
 
-Features belong to different applications; availability and read/write permissions vary by application.
+Requires Node.js 22.13 or newer.
 
-## Design overview
-
-```mermaid
-flowchart TB
-    Person[Person] --> UI[Browser interfaces]
-    AI[AI tools] --> Tools[MCP / WebMCP interfaces]
-    UI --> App[Application-specific services]
-    Tools --> App
-    App --> Conversations[Conversation records and source revisions]
-    App --> Knowledge[Knowledge documents and revision checks]
-    App --> Notes[Notes and draft recovery]
-    App --> Documents[Document editing and file output]
+```sh
+npm ci
+npm test
+npm run build
+npm start
 ```
 
-This is a conceptual view of the collection. The services and data stores are separate; support for an interface in one application does not imply support in every application.
+Open `http://127.0.0.1:4173`. No account, API key, database or private repository is required. The document engine loads when its role opens. Notes, canvas, report reviews and board state stay in this tab; unsaved note drafts also have browser-local recovery records. Download edits before closing the tab. Document edits stay in memory and must be downloaded before leaving that role.
 
-## Engineering examples
+## Six roles, one example project
 
-- **A retry after interruption:** resume a persisted collection job and recognize already imported material.
-- **A proposal based on an old document:** compare its base revision with the current document and reject the stale update.
-- **An unsaved draft after a server failure:** preserve the local draft, then restore only after checking the original content and revision; retain a separate copy when they differ.
-- **A document save:** reopen the output and compare text, tables and selected formatting. Existing development checks include an 8-page, 16-cell HWPX case; this is a bounded example, not a claim of full format compatibility.
+The demo follows an authored exhibition project, “A slower look at the city.”
 
-These examples summarize implementation and recorded development checks. This documentation repository does not yet contain the source or fixtures needed to reproduce those checks.
+| Role | Try it | Existing implementation reused |
+| --- | --- | --- |
+| Conversation archive | Search messages, inspect surrounding turns, open a fixed revision link | Unicode-safe search/highlights, routes and context |
+| Notes workspace | Edit linked notes, inspect the live graph, add canvas cards, recover an unsaved draft | Metadata/query, graph UI/simulation, JSON Canvas, immutable draft journal |
+| Knowledge & reports | Record a source observation, review a proposal, see a stale proposal refused | Evidence/proposal contract; new public browser transitions |
+| Document editing | Edit body/table text, render page 1, download and reopen HWPX | Structured staging, preservation checks, patched MIT WASM |
+| Reference boards | Organize authored images, mark favorites, create boards and add notes | Board/item/section validation |
+| Media library | Search annotations, seek video to 2 seconds, open a carousel image | Corpus matching and player/carousel controls |
 
-## Technology
+AI suggestions and media annotations are **authored examples**. The demo does not call a model, collect social-media content or connect to a personal account.
 
-TypeScript / JavaScript, React and Node.js across the applications; Cloudflare Workers, SQLite / D1, MCP and WebMCP in the relevant components. Document editing builds on an existing open-source editor rather than claiming its entire engine as original work.
+## Source layout
 
-## Public repository status
+```text
+components/       Selected implementation, organized by role
+src/              Public UI, synthetic fixtures and explicit adapters
+assets/           Original SVG illustrations and synthetic WebM clip
+tests/            Behavioral and real-WASM checks
+scripts/          Build, preview, boundary checks and transfer preparation
+docs/             Architecture, provenance, validation, claims and deployment
+sites/            Account-neutral hosting template
+licenses/         Retained third-party notices
+provenance.json   Original/selected hashes and adaptation notes
+```
 
-**Initial public overview · 2026-10-28.** This repository currently contains project documentation and an architecture overview. It is not an installable application distribution, and no public demo is linked yet.
+See [provenance](docs/PROVENANCE.md) for exact-copy versus adapted code. The HWP/HWPX engine is based on [rhwp](https://github.com/edwardkim/rhwp), with retained patches and MIT attribution; the project does not claim engine authorship from scratch. Some selected library helpers are included for inspection but not enabled in the public UI.
 
-Next additions:
+## Verification
 
-- Screenshots and short demonstrations using synthetic data.
-- Selected source modules and reproducible examples.
-- Component-level setup instructions, test fixtures and third-party attribution/license files alongside any published code.
+`npm test` exercises source search, fixed links, graph connections, canvas preservation, YAML edits, draft recovery/quota failure, knowledge validation, stale/idempotent proposal application, board membership, media search, MCP contracts and actual HWPX export/reopen. A failed structured document batch leaves the original bytes unchanged.
 
-Source publication is being prepared separately. Personal records, private conversations and deployment credentials are excluded from this public repository.
+`npm run check:public` verifies selected source hashes and scans for known private paths, hostnames and credentials. This is a safeguard, not a proof that arbitrary future additions are safe. [Validation record](docs/VALIDATION.md) separates automated checks, browser checks and untested boundaries. GitHub Actions remain paused; no remote CI pass is claimed.
+
+## Local MCP example
+
+After building, configure a stdio MCP client to run `node <absolute-checkout-path>/dist/mcp.mjs`. Six `read_<role>` tools and `search_conversations` read authored fixtures only. They do not read browser edits, parse the live document, write to private apps or invoke an AI model. The browser does not need this process.
+
+## Public release status
+
+**Executable reference source · 2026-10-29.** This change replaces the documentation-only overview with runnable code and reproducible examples. A live public Site URL is not yet claimed.
+
+Run `npm run package:sites` for an account-neutral static transfer directory, then follow the [secondary-account handoff](docs/DEPLOY-SITES.md). Registration/publication must use that account's Sites connection. The prepared directory is not an authenticated deployment archive or a successful deployment receipt.
+
+[CV evidence](docs/CV-EVIDENCE.md) provides supported wording and excludes unverified claims such as complete document compatibility, live collectors, always-on cloud execution, OCR/ASR inference and the historical private 8-page/16-cell check. [Development sequence](docs/ARCHITECTURE.md#further-development) records remaining work.
+
+Project-authored code and assets: MIT. Third-party components retain their own licenses.
