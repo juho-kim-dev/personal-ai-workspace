@@ -43,3 +43,10 @@ The root `src/` six-role prototype, selected `components/`, fixtures and their t
 5. Connect confirmed public URLs in the Wiki hub. Projects remains a candidate until selected for implementation.
 
 No main merge or hosted deployment is performed by the current local-preview task. GitHub Actions remain paused; remote delivery commits include `[skip ci]`.
+
+### 공개 화면의 표시 규칙 (2026-10-29)
+
+- 화면 제목은 `PAW - Wiki`, `PAW - Threads`처럼 `PAW - 역할명`으로 통일한다. 기존 문서 네임스페이스와 데이터 식별자는 유지한다.
+- 기본 테마는 차콜이며 일반 시스템 글꼴을 사용한다. 대문에서 42 패러디 문구를 제외한다.
+- 공개 사이트 아이콘은 역할명의 첫 글자 W/T/D/N/C/M/B/S/P를 동일한 흑백 테두리 형태로 표시한다. 허브 목록은 제목과 공개 상태를 위아래 두 줄로 표시한다.
+- 이름별 의미를 담은 선형 UI 로고는 별도 제안 단계이며 적용 결정으로 간주하지 않는다.

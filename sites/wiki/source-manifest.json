@@ -24,7 +24,7 @@
       "source_commit": null,
       "source_path": null,
       "source_sha256": null,
-      "sha256": "7d315ef6f876706a8f15f77f808c6bdf738a6cee182413a25d9adc589df861b6",
+      "sha256": "6574fd540fec9f8eb8b61344fa0fd7004c157e63094c4c4b5d2755ad7d8e17cf",
       "status": "new"
     },
     {
@@ -328,15 +328,15 @@
       "source_commit": "df2dc031c48e25a4018b0bf1c9f302ec0d74665a",
       "source_path": "app/globals.css",
       "source_sha256": "e579c292378698bb958d45d8ad8527309c92f4d31ad7d85c5b04b5f6b19948a4",
-      "sha256": "e579c292378698bb958d45d8ad8527309c92f4d31ad7d85c5b04b5f6b19948a4",
-      "status": "exact"
+      "sha256": "b3b80be57dbcbe140c5f8241fa7e322d453e31aff094a523a8ebb4c33ac29bca",
+      "status": "adapted"
     },
     {
       "path": "app/layout.tsx",
       "source_commit": "df2dc031c48e25a4018b0bf1c9f302ec0d74665a",
       "source_path": "app/layout.tsx",
       "source_sha256": "755afbe325f89ef7af1837c6606496863941e83c3fc17a12bfe4252f2d10dfb9",
-      "sha256": "20447cbf4bb9140fed3a0eb5e1c80eaacf903aa98f50c5d89aaec4221216be42",
+      "sha256": "8a6a0a2eb8c028b36e84d9724bebabf7d25dea7586d318c8df0b9e4f08082664",
       "status": "adapted"
     },
     {
@@ -368,7 +368,7 @@
       "source_commit": "df2dc031c48e25a4018b0bf1c9f302ec0d74665a",
       "source_path": "app/wiki-app.tsx",
       "source_sha256": "9ad5d69b49b0c61a75197fc0968424f2dda51a0d35f18ea99024887fdf057578",
-      "sha256": "7dae9fdf48cacbfb10b7372de7fd4065bf1e8fb10d034dbfa772b86c225c42b7",
+      "sha256": "a48be0a942bdc0dc5bc99f0b030da362349765809aa1c8fc19dd15768128e501",
       "status": "adapted"
     },
     {
@@ -400,7 +400,7 @@
       "source_commit": "df2dc031c48e25a4018b0bf1c9f302ec0d74665a",
       "source_path": "app/wiki-home.tsx",
       "source_sha256": "fd608b121c3f74bf57c677b459d702f8f05a62071244ba2e381f969f37eb85be",
-      "sha256": "8efa0d7a390aae14f2d00e985ae59d3e2db9ea09acf304a9fbcab6613b41e063",
+      "sha256": "0156ea2e9a092c686a76b6024ced7f72ef66fc51bd01c634d120831537aeb044",
       "status": "adapted"
     },
     {
@@ -1579,6 +1579,78 @@
       "source_sha256": "d051a8c47936990a9085693d307bb7cea1bc1b6d7ed956bcbaacf674f4ec96b9",
       "sha256": "d051a8c47936990a9085693d307bb7cea1bc1b6d7ed956bcbaacf674f4ec96b9",
       "status": "exact"
+    },
+    {
+      "path": "public/paw-icons/boards.svg",
+      "source_commit": null,
+      "source_path": null,
+      "source_sha256": null,
+      "sha256": "f51060e7d701c082f79db073f438ff38a09093be63fe5c8e47e5795acbcbe3e7",
+      "status": "new"
+    },
+    {
+      "path": "public/paw-icons/community.svg",
+      "source_commit": null,
+      "source_path": null,
+      "source_sha256": null,
+      "sha256": "d1e7aad879457f09f4db8d3289e1360b3e1fb38127663a3674c9333f29812b10",
+      "status": "new"
+    },
+    {
+      "path": "public/paw-icons/documents.svg",
+      "source_commit": null,
+      "source_path": null,
+      "source_sha256": null,
+      "sha256": "237ae63c08029c0fbc19dcec58f16a5a244fdc8537b804a1d2a65764ccab58da",
+      "status": "new"
+    },
+    {
+      "path": "public/paw-icons/media.svg",
+      "source_commit": null,
+      "source_path": null,
+      "source_sha256": null,
+      "sha256": "b623b2e9f5c063aa32c418241952fa1eb9ae49c48b9b98b670fe5ac9369aa95e",
+      "status": "new"
+    },
+    {
+      "path": "public/paw-icons/notes.svg",
+      "source_commit": null,
+      "source_path": null,
+      "source_sha256": null,
+      "sha256": "f307fc1e577424c56e838558e82b4ee02e4cb2ba610db5b9ac421466b042cd5e",
+      "status": "new"
+    },
+    {
+      "path": "public/paw-icons/projects.svg",
+      "source_commit": null,
+      "source_path": null,
+      "source_sha256": null,
+      "sha256": "a38fde00e5e5ff1687c16fb594462bea90c6ae0abc7a3b8cd379c992d9980ccb",
+      "status": "new"
+    },
+    {
+      "path": "public/paw-icons/study.svg",
+      "source_commit": null,
+      "source_path": null,
+      "source_sha256": null,
+      "sha256": "66a167038bb1a3b9f695571c1821133f3b1e96afc2de8c2530e5a38fa33a7513",
+      "status": "new"
+    },
+    {
+      "path": "public/paw-icons/threads.svg",
+      "source_commit": null,
+      "source_path": null,
+      "source_sha256": null,
+      "sha256": "7470b2c412e4348b737b15df04435a16f9197553861b448a511559bf0e34ce76",
+      "status": "new"
+    },
+    {
+      "path": "public/paw-icons/wiki.svg",
+      "source_commit": null,
+      "source_path": null,
+      "source_sha256": null,
+      "sha256": "48885fdce3f41e31d418c8374fbe398f90f81a7154af13d2f0dd967db3b393dc",
+      "status": "new"
     },
     {
       "path": "public/paw-projects/acra.svg",
