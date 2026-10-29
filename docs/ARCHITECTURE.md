@@ -1,13 +1,15 @@
-# Actual application instances with a Wiki hub
+# PAW Spaces, Tools, Objects and Core
 
-The authoritative current decision is [PUBLIC-DIRECTION.md](PUBLIC-DIRECTION.md). It supersedes the six-role shell and the subsequent fixed-six/no-hub plan.
+The current direction is [PUBLIC-DIRECTION.md](PUBLIC-DIRECTION.md). PAW — Personal AI Workflow — is a modular Personal AI Workspace. Spaces are applications; Tools are reusable capabilities; Objects are the information they use; Core names the shared contracts and integration foundation. A Space can offer several Tools, and other Spaces can embed/reuse them.
 
-Each application keeps its own UI, service logic, runtime and storage. Wiki hosts its own documents and the existing front-page portal; it does not absorb the other applications into one runtime or database. The first adapted application is `sites/wiki/`, with real wiki API routes, migrations, document history, knowledge/review and browser tools retained.
+Existing applications retain their source history, domain responsibilities and independent deployment options. This does not require isolated duplicate copies of every object. The goal is to reference the original owner, stable identity and selected revision while preserving access rules. Intentional copies and derived outputs retain distinct identities and provenance. Physical database topology and final schemas remain design work.
 
-The directory may contain internal compatibility names; public branding is PAW Wiki. No personal records or existing deployment identities are shipped. Root `src/` and its tests remain historical prototype code and are not a release target.
+Wiki is a functioning wiki and hub linking confirmed public application URLs. It need not absorb all runtimes or own all originals. `sites/wiki/` is the first source adaptation with its existing API, migrations, document history, knowledge/review and browser tools. No public Canvas port is present. Root prototype code/tests are historical, not the release target. Private production data and deployment identities remain excluded.
 
-Future applications must be based on their actual current source, not reconstructed from selected role modules. Add only confirmed public URLs to Wiki. Projects is a candidate; excluded products and SWU follow the scope decision.
+## Canvas and reusable visualization
 
-## Nodes
+[PAW - Canvas](CANVAS.md) starts with the existing Markdown note-map foundation. It aims to combine document editing, relationship exploration, spatial composition, actual PAW object/status views, diagrams/charts and later workflow design/execution.
 
-[PAW - Nodes (pawn)](PAWN.md) is the planned visual workspace for documents, data and meaningful relationships. Its first target is a complete Markdown node/relationship workflow using the existing application foundation. JSON/object views, AI proposal review, Mermaid integration and workflow execution are staged goals. Graph/Canvas views do not yet establish a shared semantic relationship model. Nodes keeps independent runtime/storage; Wiki remains the hub.
+Separate original content, semantic relations, derived graph indexes, saved layout/filter state and execution records. Canvas may own view documents; it should not take ownership of every displayed source object. Reuse a Viewer and an object-reference contract in Wiki/Git/Forum rather than copying data or implementing separate graph engines. Yarns remains responsible for its original-conversation reader; Canvas can consume that Tool.
+
+The first recommended integration is a read-only graph in Wiki, backed by the same objects as Canvas. Validate pinned/latest revisions, rename/deletion, source authorization and stale/error display. Later editing needs observed-revision conflict handling. UI reuse does not itself implement common storage, and an embed must not expose private sources through a public host. Cross-Space embeddings, shared object services, live updates and workflow execution are planned, not currently shipped.

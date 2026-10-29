@@ -2,19 +2,20 @@
 
 The owner selected public instances of the actual applications, preserving their existing screens and behavior and changing public names. Exclude all personal usage data. Do not replace these applications with a six-role reference prototype or a new simplified demonstration shell.
 
-PAW Wiki is the central hub, using the existing Wiki42 front page. Each other application remains an independent site/runtime/store and will be linked from the Wiki once its public URL is confirmed. Wiki is also a functioning wiki, not a separate marketing/guide site. The former prohibition on any hub and the fixed six-site scope are superseded by this decision.
+PAW - Wiki is the central hub, using the existing Wiki42 front page. Each Space can retain independent application and deployment responsibilities and will be linked from Wiki once its public URL is confirmed. Shared object references and reusable Tools are the integration goal; independent deployment does not require duplicate originals in every Space. Wiki is also a functioning wiki, not a separate marketing/guide site. The former prohibition on any hub and the fixed six-site scope are superseded by this decision.
 
 | Source product | Public title | Scope |
 | --- | --- | --- |
-| Wiki42 | PAW Wiki | First preview; central wiki and hub |
-| Yarnbox | PAW Threads | Planned |
-| Naid | PAW - Nodes (pawn) | Planned |
-| Yeobaek | PAW Documents | Planned |
-| Nalanhi | PAW Study | Planned |
-| Tseret | PAW Boards | Planned |
-| Marga | PAW Media | Planned |
-| Acra | PAW Community | Planned |
-| Tig | PAW Projects | Candidate only |
+| Wiki42 | PAW - Wiki | First preview; central wiki and hub |
+| Yarnbox | PAW - Yarns | Planned |
+| Naid | PAW - Canvas | Planned |
+| Yeobaek | PAW - Office | Planned |
+| Nalanhi | PAW - Study | Planned |
+| Tseret | PAW - Boards | Planned |
+| Marga | PAW - Library | Planned |
+| Acra | PAW - Forum | Planned |
+| Tig | PAW - Git | Planned; implementation scope to be verified |
+| — | PAW - Studio | Future candidate |
 
 Ikna, Alder, Cedar and Uman Wiki are not currently planned for public delivery. SWU remains a separate repository/tool, not a replacement for these sites.
 
@@ -40,17 +41,18 @@ The root `src/` six-role prototype, selected `components/`, fixtures and their t
 2. Verify Wiki front page, navigation, search, document editing, persistence and stale-version rejection; inspect branding and private endpoints.
 3. Review local Wiki. Prepare its separate secondary-account hosting and explicit public access/data-isolation policy; verify actual hosted behavior before recording a live URL.
 4. Port the remaining actual applications independently under the selected names; keep their own build/storage and source provenance.
-5. Connect confirmed public URLs in the Wiki hub. Projects remains a candidate until selected for implementation.
+5. Connect confirmed public URLs in the Wiki hub. The ten-Space target does not assert complete ports; Studio remains a future candidate.
 
 No main merge or hosted deployment is performed by the current local-preview task. GitHub Actions remain paused; remote delivery commits include `[skip ci]`.
 
-### 공개 화면의 표시 규칙 (2026-10-29)
+## Latest naming and shared structure — 2026-10-29
 
-- 화면 제목은 `PAW - Wiki`, `PAW - Threads`처럼 `PAW - 역할명`으로 통일한다. 기존 문서 네임스페이스와 데이터 식별자는 유지한다.
-- 기본 테마는 차콜이며 일반 시스템 글꼴을 사용한다. 대문에서 42 패러디 문구를 제외한다.
-- 공개 사이트 아이콘은 역할명의 첫 글자 W/T/D/N/C/M/B/S/P를 동일한 흑백 테두리 형태로 표시한다. 허브 목록은 제목과 공개 상태를 위아래 두 줄로 표시한다.
-- 이름별 의미를 담은 선형 UI 로고는 별도 제안 단계이며 적용 결정으로 간주하지 않는다.
+PAW means **Personal AI Workflow**, a modular Personal AI Workspace. **Spaces** are web applications, **Tools** reusable capabilities, **Objects** the information being handled, and **Core** their shared reference/relationship/access contracts and integration foundation. These are different axes, not mutually exclusive product families. Physical storage, packages and final schemas are not fixed by this decision.
 
-## Nodes identity update — 2026-10-29
+The latest selected Space is **PAW - Canvas**, superseding Nodes/pawn. [Purpose, use cases, existing foundation, reuse/embedding and staged goals](CANVAS.md). Yarns concerns original conversation records and metadata; audio/transcripts remain future scope unless separately verified. Office is a Space containing multiple editor Tools, not a claim that every document format is supported. Library includes research resources beyond images; Forum includes discussions and external community materials; Boards centers on Pins. The ten names describe the target suite, not ten shipped applications.
 
-The owner selected **PAW - Nodes**, abbreviated **pawn**, replacing the prior proposed public name PAW Notes. [Purpose, slogan, existing foundation and staged goals](PAWN.md) distinguish inherited implementation from planned capabilities and the pending public port. This does not rename the existing private deployment or introduce a new app slot. Wiki remains the hub. Runtime hub labels are a separate follow-up; this delivery updates documentation only.
+### Brand direction versus runtime
+
+Use `PAW - Role` titles. The selected monochrome symbols are Wiki/open book, Yarns/spool, Library/bookshelf, Boards/four squares, Forum/two speech bubbles, Git/branch, Office/existing Yeobaek paper and editing cursor, Studio/clapperboard, Study/two wide documents without a central divider, Canvas/two connected nodes. Earlier letter badges are the preview implementation, not the latest design decision. Runtime titles/icons and small-size validation remain a separate implementation task; this PR changes documentation only.
+
+Reuse the same source objects and Tools across Spaces; do not register copies merely to display them elsewhere. Preserve intentional copies, versions and derived results. Start with a read-only Canvas graph embedded in Wiki and validate source identity, access and freshness before expanding editing or live updates. Public/private isolation remains mandatory. No shared object service, embedding protocol, live graph or automation engine is claimed implemented.
