@@ -10,7 +10,7 @@ PAW publishes separate instances of its actual web applications with public role
 | --- | --- | --- |
 | Wiki42 | PAW Wiki | First preview; central wiki and hub |
 | Yarnbox | PAW Threads | Planned |
-| Naid | PAW Notes | Planned |
+| Naid | PAW - Nodes (pawn) | Planned |
 | Yeobaek | PAW Documents | Planned |
 | Nalanhi | PAW Study | Planned |
 | Tseret | PAW Boards | Planned |
@@ -23,3 +23,7 @@ The first local preview is **PAW Wiki**, adapted from the latest verified Wiki42
 The former six-role prototype and its selected modules remain historical reference work, not the public delivery architecture. Root build/test commands concern that prototype. Use the Wiki-specific instructions for this preview.
 
 See [architecture](docs/ARCHITECTURE.md), [deployment](docs/DEPLOY-SITES.md), [validation](docs/VALIDATION.md) and [claim boundaries](docs/CV-EVIDENCE.md). AI-assisted development and third-party notices remain explicit.
+
+## PAW - Nodes (pawn)
+
+A visual workspace for connecting documents and data into knowledge and flows. Markdown comes first; typed relationships, JSON/object views and executable workflows are development goals, not shipped public features. [Identity, slogan, current foundation and roadmap](docs/PAWN.md). Public port and deployment are pending.

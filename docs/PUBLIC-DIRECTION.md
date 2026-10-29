@@ -8,7 +8,7 @@ PAW Wiki is the central hub, using the existing Wiki42 front page. Each other ap
 | --- | --- | --- |
 | Wiki42 | PAW Wiki | First preview; central wiki and hub |
 | Yarnbox | PAW Threads | Planned |
-| Naid | PAW Notes | Planned |
+| Naid | PAW - Nodes (pawn) | Planned |
 | Yeobaek | PAW Documents | Planned |
 | Nalanhi | PAW Study | Planned |
 | Tseret | PAW Boards | Planned |
@@ -50,3 +50,7 @@ No main merge or hosted deployment is performed by the current local-preview tas
 - 기본 테마는 차콜이며 일반 시스템 글꼴을 사용한다. 대문에서 42 패러디 문구를 제외한다.
 - 공개 사이트 아이콘은 역할명의 첫 글자 W/T/D/N/C/M/B/S/P를 동일한 흑백 테두리 형태로 표시한다. 허브 목록은 제목과 공개 상태를 위아래 두 줄로 표시한다.
 - 이름별 의미를 담은 선형 UI 로고는 별도 제안 단계이며 적용 결정으로 간주하지 않는다.
+
+## Nodes identity update — 2026-10-29
+
+The owner selected **PAW - Nodes**, abbreviated **pawn**, replacing the prior proposed public name PAW Notes. [Purpose, slogan, existing foundation and staged goals](PAWN.md) distinguish inherited implementation from planned capabilities and the pending public port. This does not rename the existing private deployment or introduce a new app slot. Wiki remains the hub. Runtime hub labels are a separate follow-up; this delivery updates documentation only.
