@@ -2,11 +2,13 @@
 
 Use this document to keep project/CV descriptions proportional to what a reader can inspect. AI assistance was used in development; third-party engine authorship is attributed separately.
 
+The target is six independent demo websites with no landing/guide site. They are not yet implemented as independent outputs or deployed. The previous combined prototype is superseded. Source publication in a PR, main adoption and deployment are distinct. Do not claim six complete public sites.
+
 ## Supported public wording
 
-**English:** Developed an AI-assisted personal workspace collection and published a six-role reference demo spanning conversation archives, linked notes, evidence-based knowledge review, HWPX editing, reference boards and media browsing. Reused and documented selected implementation modules, added synthetic fixtures and local tests for draft preservation, stale-proposal rejection, idempotent application and document export/reopen checks.
+**English:** Developed an AI-assisted personal workspace collection and prepared public reference source spanning conversation archives, linked notes, evidence-based knowledge review, HWPX editing, reference boards and media browsing. Reused and documented selected implementation modules, added synthetic fixtures and local tests for draft preservation, stale-proposal rejection, idempotent application and document export/reopen checks.
 
-**한국어:** AI 보조로 개발한 개인 작업공간의 여섯 역할을 공개 참조 구현으로 구성했다. 대화 원문·노트 연결·근거 기반 지식 검토·HWPX 편집·자료 보드·미디어 탐색의 기존 핵심 코드를 선별 공개하고, 합성 자료로 초안 보존·오래된 수정안 차단·중복 적용 방지·문서 저장 후 재열기 검사를 재현했다.
+**한국어:** AI 보조로 개발한 개인 작업공간의 여섯 역할의 공개 참조 소스를 준비했다. 대화 원문·노트 연결·근거 기반 지식 검토·HWPX 편집·자료 보드·미디어 탐색의 기존 핵심 코드를 선별 공개하고, 합성 자료로 초안 보존·오래된 수정안 차단·중복 적용 방지·문서 저장 후 재열기 검사를 재현했다.
 
 | Claim | Inspectable evidence | Limit |
 | --- | --- | --- |
@@ -18,7 +20,7 @@ Use this document to keep project/CV descriptions proportional to what a reader 
 | Reference-board organization | `workspace-validation.mjs`, membership/conflict tests, UI notes/favorites | Authored image catalog; no remote collection or social service |
 | Media corpus and timed navigation | `saved-corpus.js`, `saved-media.js`, original SVG/WebM and UI seek readback | Annotations are authored fixtures, not real OCR/ASR inference |
 | MCP interface | `src/mcp.ts`, seven tool contract tests and stdio smoke check | Local read-only fixture adapter; not browser state or an always-on hosted endpoint |
-| Public deployment preparation | `sites/hosting.template.json`, `package:sites`, deployment handoff | No live URL or successful deployment receipt yet |
+| Independent deployment plan | `docs/ARCHITECTURE.md`, `docs/DEPLOY-SITES.md` | Six outputs and packages pending; old single-site packaging disabled; no live URLs |
 
 ## Claims not established by this public release
 

@@ -11,7 +11,7 @@
     "start": "node scripts/serve.mjs",
     "test": "node scripts/test.mjs",
     "check:public": "node scripts/check-public.mjs",
-    "package:sites": "npm run build && npm run check:public && node scripts/package-sites.mjs",
+    "package:sites": "node scripts/package-sites.mjs",
     "mcp": "node dist/mcp.mjs"
   },
   "dependencies": {

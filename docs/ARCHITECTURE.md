@@ -1,53 +1,46 @@
-# Six roles, linked by explicit context
+# Six independent demo websites
 
-PAW's underlying applications are independent. Each keeps its own storage, lifecycle and capabilities. The knowledge role organizes evidence and reviews; it is not a universal database or an all-powerful server. This public demo deliberately composes selected capabilities in one static UI so a visitor can try the workflow without an account.
+Public delivery consists of six separately usable and deployable websites: conversation archive, notes workspace, knowledge/reports, document editing, reference boards and media library. There is no seventh landing/guide website, unified app or shared role-switching shell. README provides the explanation and eventual direct links.
 
-```mermaid
-flowchart LR
- A[Conversation archive: immutable message + revision] -->|source link| K[Knowledge: evidence and proposal]
- N[Notes: text, links, graph, canvas] -->|working context| K
- B[Reference boards: selections and notes] -->|reference| M[Media: assets and timed annotations]
- K -->|reviewed report text| D[Document: structured edit and HWPX]
- K -->|open exact source| A
-```
+## Boundaries
 
-## Public boundaries
+- One public source repository may contain all six demos; this does not imply one runtime or deployment.
+- Each demo has its own entry point, role-specific UI, synthetic fixtures, storage namespace and build output. It opens directly and works without another demo running.
+- Each output becomes a separate Site through the secondary account, with its own Site ID, URL and deployment record. Credentials and deployment identities stay out of public source.
+- Prefer existing application code and UI. Record copies, adaptations, new code, omissions and pending work. Do not replace six actual products with six generic pages of a common app.
+- Share source utilities where useful, but not a mutable runtime state object, production database or personal content.
+- Cross-site source links use explicit optional public URLs. Missing URLs must be shown as unavailable, not routed through a combined app. Each demo remains usable alone.
+- Public names describe functions; all records are synthetic. Private applications and data remain private.
 
-| Boundary | Current implementation |
-| --- | --- |
-| UI | React shell in `src/app.tsx`, existing graph and canvas components, original public assets |
-| Domain behavior | Selected production modules in `components/`; public-only composition in `src/domain.ts` |
-| Browser state | `sessionStorage` for this tab's notes, canvas, knowledge and board state; independent immutable `localStorage` draft records for unsaved notes |
-| Documents | In-memory patched MIT WASM engine; disposable staged document per edit; HWPX download after reopen checks; no uploads |
-| Media | Same-origin authored SVG/WebM; original carousel, player, corpus matching logic; authored time annotations |
-| MCP | Local stdio adapter reads immutable public fixtures; does not access browser edits, private accounts or a remote model |
-| Hosting | Static files; no database, storage bucket, sign-in, secrets or background jobs required |
+## Current implementation
 
-The browser demo's aggregate session object is an adapter, not a proposal to merge the private applications' databases. The public MCP adapter does **not** claim the full private applications' write capabilities. `read_documents` describes the public document contract; it does not parse the currently open browser document.
+`components/` contains 37 selected existing files with provenance. `src/app.tsx` still contains a combined prototype with overview, role navigation and aggregate browser state. Those choices are superseded. Its code is temporarily retained for extracting verified behavior, not offered as the release architecture.
 
-## Decisions carried into this publication
+The single-site packaging command is disabled. Previous `.local/sites-ready/` output and transfer ZIPs must not be published. Independent entry points, output directories and deployment packages are pending. Historical prototype checks remain evidence of exercised behavior, not acceptance of six independent sites.
 
-- Preserve source text, order, stable identities and revision-bearing links. A summary is a derivative, never a replacement for the original.
-- Keep observations, claims, issues, proposals and adopted changes distinguishable. Seeing a new source creates a review candidate; it does not automatically establish a contradiction or change a report.
-- Bind a proposal to its document version. Reject a stale proposal. Make repeated application of the same request idempotent.
-- Preserve unsaved note drafts before acknowledging edits. Recovery records do not expire automatically; reading a draft is not permission to overwrite a newer document.
-- Use the same validated document operations for higher-level editing. Stage a batch on disposable bytes and reject a failing batch before committing.
-- Treat image captions, comments, OCR and transcripts as separate evidence. Missing content stays unknown. Authored annotations in this demo are never labeled model output.
-- Distinguish remotely readable archives from collection workers. A remote reader can be available while a local collector is offline; this static demo does not run either service.
-- Keep public role names and synthetic fixtures independent of private product names, accounts and records.
+The local MCP example reads immutable fixtures only; it does not access browser edits. `read_documents` describes a contract, not a live parsed browser document.
 
-## Reuse versus new work
+## Existing code and remaining adaptation
 
-Existing: source search/link helpers; note metadata, graph, canvas and recovery modules; knowledge input contract; board validation; media matching and controls; structured document editing, export checks and patched WASM.
+| Demo | Existing code | Remaining independent demo work |
+| --- | --- | --- |
+| Conversation archive | Search, highlights, context, fixed references | Archive UI/entry, fixture loading and standalone fixed links |
+| Notes workspace | Metadata, graph/canvas UI, draft recovery | Independent editor/state and preserved recovery |
+| Knowledge & reports | Evidence/proposal contracts | Review UI/state, local evidence and optional external source links |
+| Document editing | Staging, preservation checks, patched MIT WASM | Editor/fixture, dedicated engine assets, download/reopen flow |
+| Reference boards | Workspace validation | Board UI/catalog/state based on existing behavior |
+| Media library | Corpus and player/carousel controls | Media UI/assets, byte ranges and seek verification |
 
-New: this role-based UI, cross-role exhibition scenario, session storage adapter, knowledge demo transitions, read-only public MCP adapter, build/transfer scripts, original assets, tests and evidence documentation. These adapters do not replace production authentication, D1 transactions, collectors or collaboration services.
+## Development sequence
 
-## Further development
+1. Correct scope, PR, issue, CV wording and deployment instructions. Keep the six-site issue open; code selection alone does not complete it.
+2. Recheck the original apps' relevant UI/behavior, then separate each demo's entry and state. Remove the combined overview/navigation from deliverable code when replacement entries exist. Preserve source fidelity, recovery and error handling.
+3. Build six self-contained outputs with only their required assets. Prepare separate deployment workspaces and per-site manifests. Do not create a root landing page.
+4. Verify each output in isolation: direct load/reload, independent persistence, no other demo required, no private requests and role behavior in the deployment checklist. Test configured cross-site links separately.
+5. Publish only through the correctly connected secondary Sites account after these checks. Record six actual URLs, source/deployment revisions and verification dates. Check the owner's address constraint before linking them from README.
 
-1. Deploy this verified static build from the secondary account and record the actual URL and deployed commit.
-2. Add a public source-preserving import fixture runner with deterministic checkpoints, cancellation and resume tests. Exclude real account authentication and raw captured conversations.
-3. Publish a separate server-backed reference for revision checks, ownership and bounded reader continuation; prove concurrency and recovery before claiming a multi-user service.
-4. Add actual MCP write integration through the same services only after scopes, conflict behavior and audit receipts are exercised. The current MCP is read-only.
-5. Extend document fixtures and independent parser comparisons before broadening compatibility claims. Publish reproducible engine build steps separately from the included reviewed binary.
+Collectors, server concurrency, live MCP writes, independent document-parser comparisons and reproducible engine rebuilds are separate later work. SWU is outside this repository.
 
-These are remaining work, not features already deployed by this PR. SWU is outside this repository's scope.
+## Behavior to preserve
+
+Keep source text, order, stable IDs and revision-bearing links. Summaries are derivatives. Distinguish observations, proposals and adopted changes; new evidence does not automatically edit a report. Reject stale proposals and repeated application. Preserve unsaved drafts and stage document changes before committing. Authored annotations are not OCR/transcript inference. Remote archive availability does not prove its collector runs while a local machine is off.

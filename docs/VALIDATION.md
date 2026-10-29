@@ -1,4 +1,8 @@
-# Public reference validation — 2026-10-29
+# Historical combined-prototype validation — 2026-10-29
+
+The combined presentation below was superseded by the decision to build six independent demo websites with no guide site. These checks and screenshots describe that earlier prototype only. They do not verify independent entries, storage, outputs or deployments. Those checks remain pending. The old transfer package is obsolete; see `DEPLOY-SITES.md`.
+
+Scope-correction checks: documentation links and authored diff whitespace passed; public-boundary scan passed for 89 files with all 37 provenance hashes matching. The disabled packaging command was checked to exit 1 with the independent-site explanation. The earlier 14-test suite and browser walkthrough were not rerun for this documentation/packaging correction; no new independent-site behavior is claimed.
 
 Environment: Windows desktop, Node.js 24.22.1, npm 11.19.1. Local Codex in-app browser; mouse/keyboard input. This is local evidence, not a hosted deployment or an external-browser certification.
 
@@ -39,4 +43,4 @@ Screenshots show the actual local UI and synthetic data: [overview](screenshots/
 - Full remote note-recovery workflow, all selected library helpers, independent document parser or arbitrary real-world document compatibility.
 - Rust rebuild, upstream host test suite, historical private 8-page/16-cell fixture. Those are not substitutes for the public 1-page/6-cell test.
 
-Source publication, main integration and deployment remain separate states. See the PR for the delivered commit and `DEPLOY-SITES.md` for the next account-bound step.
+Source publication, main integration and deployment remain separate states. See the PR for the delivered commit and `DEPLOY-SITES.md` for pending independent-site preparation and account-bound publication.

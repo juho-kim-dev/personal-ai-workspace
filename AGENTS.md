@@ -1,5 +1,7 @@
 # Public PAW reference implementation
 
+Public delivery is exactly six independent demo websites. Do not build a landing/guide site, unified shell or shared role-switching app. Use existing application behavior/UI with synthetic content. Each demo needs independent entry, state, output and deployment; README supplies explanation and direct links. The current combined prototype is superseded and must not be packaged/published. Do not mark independent sites ready until each passes isolated checks.
+
 Use functional role names in public content. Private product identities, account addresses, real conversations, documents, databases, deployment IDs and credentials do not belong here.
 
 Read README.md, docs/ARCHITECTURE.md and docs/PROVENANCE.md before changing the demo. Reused modules have original and selected SHA-256 hashes in provenance.json. Record any adaptation and update its output hash; do not silently claim an adapted module is byte-identical.
