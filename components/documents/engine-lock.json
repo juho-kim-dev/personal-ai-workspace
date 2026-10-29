@@ -1,0 +1,87 @@
+{
+  "schemaVersion": 1,
+  "kind": "Selected patched WebAssembly engine; public runtime is the same for edit and reopen (not an independent parser)",
+  "source": {
+    "repository": "https://github.com/edwardkim/rhwp",
+    "commit": "1a76570e833917d15817415a53c09ad61ab3203f",
+    "license": "MIT",
+    "sourceFiles": [
+      {
+        "path": "src/document_core/commands/document.rs",
+        "upstreamSHA256": "9dc140269a9e3f55173c5b6e4f18550177d19a8abba5dad43e329e32440e9119",
+        "localSHA256": "589e4c2a80dd54da7409b0852ffe4c93d18215eff230be8f669a65cbde091c68"
+      },
+      {
+        "path": "src/serializer/hwpx/section.rs",
+        "upstreamSHA256": "87e7ec7579b30bf82f2995bd69c846586d5f6743597ddd6fb57eb130883b78a3",
+        "localSHA256": "b489b39dc2494afbb6630fd6698806f677ab5104b59ab64d33818f6a33d41f36"
+      },
+      {
+        "path": "src/renderer/layout.rs",
+        "upstreamSHA256": "eb561f70fed2217db8e17efc8b33a5639de4dd5c8087797cd2cf876be4bc4ca5",
+        "localSHA256": "7741f9bc04759ed0c3dffa0c910921c1961952e2936536ae1160f20144461bd3"
+      },
+      {
+        "path": "src/renderer/float_placement.rs",
+        "upstreamSHA256": "82759ab163aa6fe8f57aee13fefd68bcddbde11c57e468cbc34a2e2320b4044a",
+        "localSHA256": "a8afed6e8dfc6c0f69d20f2ed984950a01ec2422f4324f0976a623541a770134"
+      },
+      {
+        "path": "src/renderer/typeset/table/block/entry.rs",
+        "upstreamSHA256": "90389834b32c48190b4ebab7b1261385dc56953823f5616ced89aecbdd3e4cbc",
+        "localSHA256": "44b102f9abd099636ef08c487562bfa45671eabc5830768c442e0e970725a1a8"
+      }
+    ]
+  },
+  "patch": {
+    "path": "patches/hwpx-computed-layout.patch",
+    "sha256": "354289ad6579054f4e662b0b2c8b2e8bb33c5a3e9cc272f17cf7828245656441"
+  },
+  "additionalPatches": [
+    {
+      "path": "patches/body-ink-row-width.patch",
+      "sha256": "eb2f813e91bbe32c0e3b01b5e9c0a92e51cf3d6ee8f510e8add3e1e521e12325",
+      "bytes": 57452,
+      "appliesAfter": "patches/hwpx-computed-layout.patch",
+      "lineEndingPolicy": "apply to LF canonical source; source manifest preserves original hashes"
+    }
+  ],
+  "files": [
+    {
+      "path": "engine/LICENSE",
+      "sha256": "1c3a7d5643b163a3ead4965e1bea33b832caee5bfca265efe42afcd7bc696b5b",
+      "bytes": 1072
+    },
+    {
+      "path": "engine/rhwp.d.ts",
+      "sha256": "d8fd1510b24d84dfcc2ca70f0e6543358254457b3748170ab91e190f2384ef61",
+      "bytes": 183636
+    },
+    {
+      "path": "engine/rhwp.js",
+      "sha256": "2203d5ae635e4b196874c5ec52351a360f5e0c14711fb1314356c08e00fbc92b",
+      "bytes": 461126
+    },
+    {
+      "path": "engine/rhwp_bg.wasm",
+      "sha256": "47d2504d8760f375d02a2b06b204822a17a7145bc58eb0f2df20279c1a588e7b",
+      "bytes": 15583499
+    },
+    {
+      "path": "engine/rhwp_bg.wasm.d.ts",
+      "sha256": "4ee5a19d434c06a08a469f216868cd99210a48cbb8d190fcaf39baf505225940",
+      "bytes": 61666
+    }
+  ],
+  "scope": "Preserves prior computed-layout/cache fixes; adds measured per-glyph body clip recovery and maximum complete-row table width synchronization. Cell widths remain unchanged by compatibility repair.",
+  "build": {
+    "rustc": "1.99.1 (58cf8f9c3 2026-10-13)",
+    "wasmBindgen": "0.2.127",
+    "target": "wasm32-unknown-unknown",
+    "profile": "release-test",
+    "lto": false,
+    "codegenUnits": 16,
+    "publicRebuild": "Not performed. Included binary is selected from the reviewed source commit; verify its SHA-256. Upstream host tests were blocked by missing upstream fixtures; not represented as passed."
+  },
+  "originalStudioIncluded": false
+}

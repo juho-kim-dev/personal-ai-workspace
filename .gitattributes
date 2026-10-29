@@ -1,0 +1,2 @@
+# Preserve selected-source byte hashes across Windows and Unix checkouts.
+* -text whitespace=blank-at-eol,blank-at-eof,space-before-tab,cr-at-eol

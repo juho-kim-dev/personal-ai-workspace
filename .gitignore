@@ -1,0 +1,9 @@
+node_modules/
+dist/
+.local/
+.openai/hosting.json
+.wrangler/
+*.log
+.env
+.env.*
+!.env.example
