@@ -1,0 +1,1370 @@
+diff --git a/Cargo.toml b/Cargo.toml
+index 4c34eda..8d578e5 100644
+--- a/Cargo.toml
++++ b/Cargo.toml
+@@ -332,6 +332,8 @@ resvg-gpu = { package = "resvg", version = "0.48", optional = true }
+ [target.'cfg(target_arch = "wasm32")'.dependencies]
+ web-sys = { version = "0.3", features = [
+     "CanvasRenderingContext2d",
++    "DomMatrix",
++    "DomMatrixReadOnly",
+     "CanvasGradient",
+     "CanvasPattern",
+     "HtmlCanvasElement",
+diff --git a/src/model/table.rs b/src/model/table.rs
+index 406dd1b..b0d2a74 100644
+--- a/src/model/table.rs
++++ b/src/model/table.rs
+@@ -1149,6 +1149,69 @@ impl Table {
+         self.common.height = total_height;
+     }
+ 
++    /// Validate complete logical coverage and measure each row independently.
++    /// A spanning cell contributes its width once to every row it occupies.
++    /// Explicit widths permit resize preflight before any model mutation.
++    /// This helper does not infer shared column boundaries or change cells.
++    pub(crate) fn checked_max_complete_row_width_hu(
++        &self,
++        widths: &[HwpUnit],
++    ) -> Result<HwpUnit, String> {
++        let rows = usize::from(self.row_count);
++        let cols = usize::from(self.col_count);
++        let slots = rows.checked_mul(cols)
++            .ok_or_else(|| "Table coverage size overflow".to_string())?;
++        if rows == 0 || cols == 0 || slots > MAX_TABLE_GRID_CELLS
++            || self.cells.is_empty() || self.cells.len() > slots
++            || widths.len() != self.cells.len()
++        {
++            return Err("Unsupported or incomplete table coverage".to_string());
++        }
++        let mut occupied = vec![false; slots];
++        let mut totals = vec![0u64; rows];
++        for (cell, &width) in self.cells.iter().zip(widths) {
++            let row = usize::from(cell.row);
++            let col = usize::from(cell.col);
++            let row_end = row.checked_add(usize::from(cell.row_span))
++                .ok_or_else(|| "Cell row range overflow".to_string())?;
++            let col_end = col.checked_add(usize::from(cell.col_span))
++                .ok_or_else(|| "Cell column range overflow".to_string())?;
++            if cell.row_span == 0 || cell.col_span == 0
++                || row_end > rows || col_end > cols
++                || width == 0 || width > i32::MAX as u32
++            {
++                return Err("Invalid cell bounds or width".to_string());
++            }
++            for y in row..row_end {
++                totals[y] = totals[y].checked_add(u64::from(width))
++                    .ok_or_else(|| "Cell row width overflow".to_string())?;
++                if totals[y] > i32::MAX as u64 {
++                    return Err("Cell row width exceeds signed layout range".to_string());
++                }
++                for x in col..col_end {
++                    let slot = y * cols + x;
++                    if occupied[slot] {
++                        return Err("Overlapping table cells".to_string());
++                    }
++                    occupied[slot] = true;
++                }
++            }
++        }
++        if occupied.iter().any(|present| !present) {
++            return Err("Uncovered table slots".to_string());
++        }
++        Ok(totals.into_iter().max().unwrap_or(0) as HwpUnit)
++    }
++
++    /// Synchronize only the declaration; never create or extend raw data.
++    pub(crate) fn sync_ctrl_width(&mut self, width: HwpUnit) {
++        self.common.width = width;
++        if self.raw_ctrl_data.len() >= common_obj_offsets::WIDTH.end {
++            self.raw_ctrl_data[common_obj_offsets::WIDTH]
++                .copy_from_slice(&width.to_le_bytes());
++        }
++    }
++
+     pub(crate) fn sync_ctrl_height(&mut self, height: HwpUnit) {
+         self.common.height = height;
+         if self.raw_ctrl_data.len() >= common_obj_offsets::HEIGHT.end {
+diff --git a/src/document_core/commands/table_ops.rs b/src/document_core/commands/table_ops.rs
+index 7c31daa..af65c8f 100644
+--- a/src/document_core/commands/table_ops.rs
++++ b/src/document_core/commands/table_ops.rs
+@@ -2196,72 +2196,106 @@ impl DocumentCore {
+     fn apply_cell_resize_updates(
+         table: &mut crate::model::table::Table,
+         updates: &[CellResizeUpdate],
+-    ) -> Vec<(usize, usize)> {
+-        const MIN_CELL_SIZE: u32 = 200; // 최소 셀 크기 (HWPUNIT)
+-
+-        let original_width = table.common.width;
+-        let original_height = table.common.height;
+-        let original_row_height_sum: u32 = table.get_row_heights().iter().sum();
+-        let mut applied_width_delta: i64 = 0;
+-        let mut applied_height_delta: i64 = 0;
++    ) -> Result<Vec<(usize, usize)>, HwpError> {
++        const MIN_CELL_SIZE: i64 = 200;
++        if updates.is_empty() {
++            return Ok(Vec::new());
++        }
++        if table.cells.len() > crate::model::table::MAX_TABLE_GRID_CELLS {
++            return Err(HwpError::RenderError("Table resize limit exceeded".to_string()));
++        }
++        // Stage dimensions only. Errors must not leave a partially resized table.
++        let mut widths: Vec<u32> = table.cells.iter().map(|c| c.width).collect();
++        let mut heights: Vec<u32> = table.cells.iter().map(|c| c.height).collect();
++        let resize = |value: u32, delta: i32| -> Result<u32, HwpError> {
++            let next = (i64::from(value) + i64::from(delta)).max(MIN_CELL_SIZE);
++            if next > i64::from(i32::MAX) {
++                return Err(HwpError::RenderError(
++                    "Cell size exceeds signed layout range".to_string(),
++                ));
++            }
++            Ok(next as u32)
++        };
+         for update in updates {
+-            let Some(cell) = table.cells.get_mut(update.cell_idx) else {
++            if update.cell_idx >= table.cells.len() {
+                 continue;
+-            };
++            }
+             if update.width_delta != 0 {
+-                let old_width = cell.width;
+-                cell.width =
+-                    (cell.width as i32 + update.width_delta).max(MIN_CELL_SIZE as i32) as u32;
+-                applied_width_delta += i64::from(cell.width) - i64::from(old_width);
++                widths[update.cell_idx] = resize(widths[update.cell_idx], update.width_delta)?;
+             }
+             if update.height_delta != 0 {
+-                let old_height = cell.height;
+-                cell.height =
+-                    (cell.height as i32 + update.height_delta).max(MIN_CELL_SIZE as i32) as u32;
+-                applied_height_delta += i64::from(cell.height) - i64::from(old_height);
++                heights[update.cell_idx] = resize(heights[update.cell_idx], update.height_delta)?;
+             }
+         }
+-        table.update_ctrl_dimensions();
+-        if updates.iter().any(|u| u.height_delta != 0)
+-            && original_height > original_row_height_sum
+-            && table.row_count > 1
+-        {
+-            // 여러 행 표에서 일부 행을 조절할 때만 생성 표의 표시 height 여유분을 보존한다.
+-            // 1행 표는 조절한 셀 높이가 곧 표 높이라는 기존 TAC 전환 회귀 규칙을 유지해야 한다.
+-            let resized_row_height_sum: u32 = table.get_row_heights().iter().sum();
+-            let row_height_delta = resized_row_height_sum as i64 - original_row_height_sum as i64;
+-            let adjusted_height = if row_height_delta >= 0 {
+-                original_height.saturating_add(row_height_delta.min(u32::MAX as i64) as u32)
+-            } else {
+-                original_height.saturating_sub((-row_height_delta).min(u32::MAX as i64) as u32)
++        let reflow: Vec<(usize, usize)> = table.cells.iter().enumerate()
++            .filter(|(i, c)| widths[*i] != c.width)
++            .map(|(i, c)| (i, c.paragraphs.len()))
++            .collect();
++        let width_changed = !reflow.is_empty();
++        let height_changed = table.cells.iter().enumerate()
++            .any(|(i, c)| heights[i] != c.height);
++        if !width_changed && !height_changed {
++            return Ok(Vec::new());
++        }
++
++        let new_width = if width_changed {
++            if !matches!(table.common.width_criterion, crate::model::shape::SizeCriterion::Absolute)
++                || table.cell_spacing != 0
++            {
++                return Err(HwpError::RenderError(
++                    "Cell-row width resize requires absolute width and zero spacing".to_string(),
++                ));
+             }
+-            .max(resized_row_height_sum);
+-            table.common.height = adjusted_height;
+-            if table.raw_ctrl_data.len() >= common_obj_offsets::HEIGHT.end {
+-                table.raw_ctrl_data[common_obj_offsets::HEIGHT]
+-                    .copy_from_slice(&adjusted_height.to_le_bytes());
++            Some(table.checked_max_complete_row_width_hu(&widths)
++                .map_err(HwpError::RenderError)?)
++        } else {
++            None
++        };
++
++        // Preserve the existing row-height/fallback and display-slack rules,
++        // while avoiding both a width recomputation and unchecked u32 sums.
++        let new_height = if height_changed {
++            let mut rows = vec![0u32; usize::from(table.row_count)];
++            for (i, cell) in table.cells.iter().enumerate() {
++                if cell.row_span == 1 {
++                    if let Some(height) = rows.get_mut(usize::from(cell.row)) {
++                        *height = (*height).max(heights[i]);
++                    }
++                }
+             }
+-        }
+-        if applied_width_delta == 0 {
+-            table.common.width = original_width;
+-            if table.raw_ctrl_data.len() >= common_obj_offsets::WIDTH.end {
+-                table.raw_ctrl_data[common_obj_offsets::WIDTH]
+-                    .copy_from_slice(&original_width.to_le_bytes());
++            let resized_sum: u64 = rows.into_iter()
++                .map(|h| u64::from(if h == 0 { 400 } else { h })).sum();
++            let original_sum: u64 = table.get_row_heights().into_iter()
++                .map(u64::from).sum();
++            let slack = if table.row_count > 1 {
++                u64::from(table.common.height).saturating_sub(original_sum)
++            } else {
++                0
++            };
++            let total = resized_sum.checked_add(slack).ok_or_else(||
++                HwpError::RenderError("Table height overflow".to_string()))?;
++            if total > i32::MAX as u64 {
++                return Err(HwpError::RenderError(
++                    "Table height exceeds signed layout range".to_string(),
++                ));
+             }
++            Some(total as u32)
++        } else {
++            None
++        };
++
++        // All fallible planning is complete. Preserve all untouched cell data.
++        for (i, cell) in table.cells.iter_mut().enumerate() {
++            cell.width = widths[i];
++            cell.height = heights[i];
+         }
+-        if applied_height_delta == 0 {
+-            table.common.height = original_height;
+-            if table.raw_ctrl_data.len() >= common_obj_offsets::HEIGHT.end {
+-                table.raw_ctrl_data[common_obj_offsets::HEIGHT]
+-                    .copy_from_slice(&original_height.to_le_bytes());
+-            }
++        if let Some(width) = new_width {
++            table.sync_ctrl_width(width);
+         }
+-
+-        updates
+-            .iter()
+-            .filter(|u| u.width_delta != 0)
+-            .filter_map(|u| Some((u.cell_idx, table.cells.get(u.cell_idx)?.paragraphs.len())))
+-            .collect()
++        if let Some(height) = new_height {
++            table.sync_ctrl_height(height);
++        }
++        Ok(reflow)
+     }
+ 
+     /// 셀 크기 조절 갱신 목록을 파싱한다 — `[{"cellIdx":N,"widthDelta":D,"heightDelta":D}, ...]`.
+@@ -2366,7 +2400,7 @@ impl DocumentCore {
+         }
+ 
+         let table = self.resolve_table_mut_by_cell_path(section_idx, parent_para_idx, path)?;
+-        let reflow_cells = Self::apply_cell_resize_updates(table, &updates);
++        let reflow_cells = Self::apply_cell_resize_updates(table, &updates)?;
+ 
+         // 리플로우는 **안쪽 셀 폭**을 기준으로 해야 한다 — 바깥 표의 셀 폭이나 본문 폭으로
+         // 다시 재면 중첩 표 글줄이 제 칸을 넘는다. `reflow_cell_paragraph_by_path` 가
+@@ -2412,7 +2446,7 @@ impl DocumentCore {
+ 
+         // 셀 업데이트 적용
+         let table = self.get_table_mut(section_idx, parent_para_idx, control_idx)?;
+-        let reflow_cells = Self::apply_cell_resize_updates(table, &updates);
++        let reflow_cells = Self::apply_cell_resize_updates(table, &updates)?;
+ 
+         // 너비가 변경된 셀의 모든 문단에 대해 line_segs 재계산 (텍스트 리플로우)
+         self.reflow_table_cell_paragraphs(section_idx, parent_para_idx, control_idx, &reflow_cells);
+@@ -2786,6 +2820,61 @@ impl DocumentCore {
+     ) -> Result<String, HwpError> {
+         use super::super::helpers::{json_bool, json_i16, json_i32, json_str, json_u32, json_u8};
+ 
++        // Explicit declaration-only operation. The compatibility caller must
++        // use its independent clone; import and normal export never invoke it.
++        // Handle separately so legacy property processing cannot touch flags,
++        // styles, captions, cells, or unrelated raw fields.
++        if let Ok(value) = serde_json::from_str::<serde_json::Value>(json) {
++            if let Some(object) = value.as_object() {
++                if let Some(request) = object.get("normalizeWidthToCellRows") {
++                    if object.len() != 1 || !request.is_boolean() {
++                        return Err(HwpError::RenderError(
++                            "normalizeWidthToCellRows requires a standalone boolean property".to_string(),
++                        ));
++                    }
++                    let (before, after) = {
++                        let table = self.get_table_mut(section_idx, parent_para_idx, control_idx)?;
++                        let before = table.common.width;
++                        let after = if request.as_bool() == Some(true) {
++                            if before == 0 || before > i32::MAX as u32
++                                || !matches!(table.common.width_criterion, crate::model::shape::SizeCriterion::Absolute)
++                                || table.cell_spacing != 0
++                            {
++                                return Err(HwpError::RenderError(
++                                    "Width normalization requires positive absolute width and zero spacing".to_string(),
++                                ));
++                            }
++                            if table.cells.len() > crate::model::table::MAX_TABLE_GRID_CELLS {
++                                return Err(HwpError::RenderError("Table normalization limit exceeded".to_string()));
++                            }
++                            let widths: Vec<u32> = table.cells.iter().map(|c| c.width).collect();
++                            let extent = table.checked_max_complete_row_width_hu(&widths)
++                                .map_err(HwpError::RenderError)?;
++                            // Explicit compatibility normalization never shrinks
++                            // a larger user-authored declaration.
++                            before.max(extent)
++                        } else {
++                            before
++                        };
++                        if after != before {
++                            table.sync_ctrl_width(after);
++                        }
++                        (before, after)
++                    };
++                    if after != before {
++                        self.document.sections[section_idx].raw_stream = None;
++                        self.recompose_section(section_idx);
++                        self.paginate_if_needed();
++                    }
++                    return Ok(serde_json::json!({
++                        "ok": true,
++                        "changed": before != after,
++                        "tableWidth": after,
++                    }).to_string());
++                }
++            }
++        }
++
+         let caption_style = self
+             .document
+             .doc_info
+@@ -3909,6 +3998,10 @@ fn json_escape(s: &str) -> String {
+     r
+ }
+ 
++#[cfg(test)]
++#[path = "table_width_regression_tests.rs"]
++mod table_width_regression_tests;
++
+ #[cfg(test)]
+ mod tests {
+     use crate::model::shape::common_obj_offsets;
+diff --git a/.local/hosting-width-primary-20261023/engine-source/src/document_core/commands/table_width_regression_tests.rs b/src/document_core/commands/table_width_regression_tests.rs
+new file mode 100644
+index 0000000..05f922f
+--- /dev/null
++++ b/src/document_core/commands/table_width_regression_tests.rs
+@@ -0,0 +1,353 @@
++//! Regression source for intentional resize and explicit declaration repair.
++//! Native command tests are separate from browser/Canvas/Hancom acceptance.
++
++use super::CellResizeUpdate;
++use crate::document_core::DocumentCore;
++use crate::model::control::Control;
++use crate::model::document::{Document, Section};
++use crate::model::paragraph::Paragraph;
++use crate::model::shape::{common_obj_offsets, SizeCriterion};
++use crate::model::table::{Cell, Table};
++
++fn grid(rows: u16, columns: u16, width: u32) -> Table {
++    let mut table = Table {
++        row_count: rows,
++        col_count: columns,
++        row_sizes: vec![columns as i16; rows as usize],
++        ..Default::default()
++    };
++    for row in 0..rows {
++        for col in 0..columns {
++            table.cells.push(Cell::new_empty(col, row, width, 1000, 0));
++        }
++    }
++    table.common.width_criterion = SizeCriterion::Absolute;
++    table.raw_ctrl_data = vec![0; 36];
++    table.update_ctrl_dimensions();
++    table.rebuild_grid();
++    table
++}
++
++fn core_with(table: Table) -> DocumentCore {
++    let mut host = Paragraph::new_empty();
++    host.controls.push(Control::Table(Box::new(table)));
++    let mut section = Section::default();
++    section.paragraphs.push(host);
++    let mut document = Document::default();
++    document.sections.push(section);
++    let mut core = DocumentCore::new_empty();
++    core.set_document(document);
++    core
++}
++
++fn table(core: &DocumentCore) -> &Table {
++    match &core.document.sections[0].paragraphs[0].controls[0] {
++        Control::Table(table) => table,
++        _ => panic!("fixture table missing"),
++    }
++}
++
++fn table_mut(core: &mut DocumentCore) -> &mut Table {
++    match &mut core.document.sections[0].paragraphs[0].controls[0] {
++        Control::Table(table) => table,
++        _ => panic!("fixture table missing"),
++    }
++}
++
++fn snapshot(table: &Table) -> serde_json::Value {
++    serde_json::to_value(table).unwrap()
++}
++
++fn widths(table: &Table) -> Vec<u32> {
++    table.cells.iter().map(|c| c.width).collect()
++}
++
++fn extent(table: &Table) -> Result<u32, String> {
++    table.checked_max_complete_row_width_hu(&widths(table))
++}
++
++fn raw_width(table: &Table) -> u32 {
++    u32::from_le_bytes(table.raw_ctrl_data[common_obj_offsets::WIDTH].try_into().unwrap())
++}
++
++fn merged_fixture() -> Table {
++    let mut table = grid(4, 3, 13984);
++    table.merge_cells(0, 0, 0, 1).unwrap();
++    table.merge_cells(1, 0, 2, 0).unwrap();
++    table
++}
++
++fn update(index: usize, width_delta: i32, height_delta: i32) -> CellResizeUpdate {
++    CellResizeUpdate { cell_idx: index, width_delta, height_delta }
++}
++
++#[test]
++fn new_native_merge_then_resize_preserves_intent_and_declares_42852() {
++    let mut core = core_with(grid(4, 3, 13984));
++    core.merge_table_cells_native(0, 0, 0, 0, 0, 0, 1).unwrap();
++    core.merge_table_cells_native(0, 0, 0, 1, 0, 2, 0).unwrap();
++    let before = widths(table(&core));
++    assert_eq!(before[0], 27968);
++    assert_eq!(table(&core).common.width, 41952);
++    core.resize_table_cells_native(0, 0, 0,
++        r#"[{"cellIdx":0,"widthDelta":900,"heightDelta":600}]"#).unwrap();
++    let result = table(&core);
++    assert_eq!(result.cells[0].width, 28868);
++    assert_eq!(&widths(result)[1..], &before[1..]);
++    assert_eq!(result.cells.len(), 10);
++    assert_eq!(extent(result).unwrap(), 42852);
++    assert_eq!(result.common.width, 42852);
++    assert_eq!(raw_width(result), 42852);
++    let props: serde_json::Value = serde_json::from_str(
++        &core.get_table_properties_native(0, 0, 0).unwrap()).unwrap();
++    assert_eq!(props["tableWidth"], 42852);
++    assert!(props.get("width").is_none());
++}
++
++#[test]
++fn negative_and_height_only_changes_preserve_original_width() {
++    for delta in [-600, 600] {
++        let mut table = merged_fixture();
++        table.cells[0].width = 28868;
++        let original_widths = widths(&table);
++        DocumentCore::apply_cell_resize_updates(&mut table, &[update(0, 0, delta)]).unwrap();
++        assert_eq!(widths(&table), original_widths);
++        assert_eq!(table.common.width, 41952);
++        assert_eq!(raw_width(&table), 41952);
++    }
++}
++
++#[test]
++fn zero_empty_invalid_index_and_cancelled_same_cell_are_model_noops() {
++    for updates in [
++        vec![],
++        vec![update(0, 0, 0)],
++        vec![update(usize::MAX, 900, 600)],
++        vec![update(0, 900, 600), update(0, -900, -600)],
++    ] {
++        let mut table = merged_fixture();
++        table.cells[0].width = 28868;
++        let before = snapshot(&table);
++        assert!(DocumentCore::apply_cell_resize_updates(&mut table, &updates).unwrap().is_empty());
++        assert_eq!(snapshot(&table), before);
++    }
++}
++
++#[test]
++fn native_zero_delta_keeps_legacy_declaration_and_cells() {
++    let mut fixture = merged_fixture();
++    fixture.cells[0].width = 28868;
++    let mut core = core_with(fixture);
++    let before = snapshot(table(&core));
++    core.resize_table_cells_native(0, 0, 0,
++        r#"[{"cellIdx":0,"widthDelta":0,"heightDelta":0}]"#).unwrap();
++    assert_eq!(snapshot(table(&core)), before);
++}
++
++#[test]
++fn negative_width_resize_recomputes_maximum_without_changing_other_cells() {
++    let mut table = merged_fixture();
++    table.cells[0].width = 28868;
++    table.sync_ctrl_width(42852);
++    let original = widths(&table);
++    DocumentCore::apply_cell_resize_updates(&mut table, &[update(0, -900, 0)]).unwrap();
++    assert_eq!(table.cells[0].width, 27968);
++    assert_eq!(&widths(&table)[1..], &original[1..]);
++    assert_eq!(table.common.width, 41952);
++}
++
++#[test]
++fn unequal_rows_do_not_use_global_column_maxima() {
++    let mut table = grid(2, 3, 13984);
++    for (cell, width) in table.cells.iter_mut().zip([
++        18769, 9199, 13984,
++        9000, 18000, 14952,
++    ]) {
++        cell.width = width;
++    }
++    assert_eq!(extent(&table).unwrap(), 41952);
++    assert_eq!(table.get_column_widths().iter().copied().sum::<u32>(), 51721);
++    let original = widths(&table);
++    DocumentCore::apply_cell_resize_updates(&mut table, &[update(0, 900, 0)]).unwrap();
++    assert_eq!(table.common.width, 42852);
++    assert_eq!(&widths(&table)[1..], &original[1..]);
++}
++
++#[test]
++fn opposing_changes_in_different_rows_are_not_a_noop() {
++    let mut table = grid(2, 2, 1000);
++    let reflow = DocumentCore::apply_cell_resize_updates(
++        &mut table, &[update(0, 100, 0), update(2, -100, 0)]).unwrap();
++    assert_eq!(widths(&table), vec![1100, 1000, 900, 1000]);
++    assert_eq!(table.common.width, 2100);
++    assert_eq!(reflow.len(), 2);
++}
++
++#[test]
++fn both_spans_count_cell_width_once_per_occupied_row() {
++    let mut table = grid(2, 3, 1000);
++    table.merge_cells(0, 0, 1, 1).unwrap();
++    table.cells.iter_mut().find(|c| c.row == 1 && c.col == 2).unwrap().width = 1400;
++    assert_eq!(extent(&table).unwrap(), 3400);
++    let primary = table.cells.iter().position(|c| c.row == 0 && c.col == 0).unwrap();
++    DocumentCore::apply_cell_resize_updates(&mut table, &[update(primary, 100, 0)]).unwrap();
++    assert_eq!(table.common.width, 3500);
++}
++
++#[test]
++fn incomplete_overlapping_out_of_bounds_and_oversized_grids_refuse() {
++    let original = grid(2, 2, 1000);
++    let mut cases = Vec::new();
++    let mut t = original.clone(); t.cells.pop(); cases.push(t);
++    let mut t = original.clone(); t.cells[1].col = 0; cases.push(t);
++    let mut t = original.clone(); t.cells[0].row_span = 0; cases.push(t);
++    let mut t = original.clone(); t.cells[0].col_span = 3; cases.push(t);
++    let mut t = original.clone(); t.cells[0].row = u16::MAX; cases.push(t);
++    let mut t = original.clone(); t.row_count = u16::MAX; t.col_count = u16::MAX; cases.push(t);
++    let mut t = original.clone(); t.cells[0].width = 0; cases.push(t);
++    let mut t = original.clone(); t.cells[0].width = u32::MAX; cases.push(t);
++    for table in cases {
++        let before = snapshot(&table);
++        assert!(extent(&table).is_err());
++        assert_eq!(snapshot(&table), before);
++    }
++}
++
++#[test]
++fn oversize_updates_and_row_sum_overflow_are_atomic_errors() {
++    let mut cases = Vec::new();
++    cases.push((grid(2, 2, 1000), vec![update(0, 10, 0), update(1, i32::MAX, 0)]));
++    let mut t = grid(1, 2, 1000);
++    t.cells[0].width = i32::MAX as u32 - 1000;
++    cases.push((t, vec![update(1, 1, 0)]));
++    let mut t = grid(2, 1, 1000);
++    t.cells[0].height = i32::MAX as u32;
++    cases.push((t, vec![update(1, 0, 1)]));
++    for (mut table, updates) in cases {
++        let before = snapshot(&table);
++        assert!(DocumentCore::apply_cell_resize_updates(&mut table, &updates).is_err());
++        assert_eq!(snapshot(&table), before);
++    }
++    let mut edge = grid(1, 1, 1000);
++    edge.cells[0].width = i32::MAX as u32;
++    assert_eq!(extent(&edge).unwrap(), i32::MAX as u32);
++}
++
++#[test]
++fn minimum_size_clamp_and_large_negative_delta_do_not_wrap() {
++    let mut table = grid(1, 1, 1000);
++    DocumentCore::apply_cell_resize_updates(
++        &mut table, &[update(0, i32::MIN, i32::MIN)]).unwrap();
++    assert_eq!((table.cells[0].width, table.cells[0].height), (200, 200));
++    assert_eq!((table.common.width, table.common.height), (200, 200));
++}
++
++#[test]
++fn explicit_normalization_preserves_all_cells_and_is_idempotent() {
++    let mut fixture = merged_fixture();
++    fixture.cells[0].width = 28868;
++    let mut core = core_with(fixture);
++    let before_cells = serde_json::to_value(&table(&core).cells).unwrap();
++    let before_table = snapshot(table(&core));
++    let result: serde_json::Value = serde_json::from_str(
++        &core.set_table_properties_native(0, 0, 0,
++            r#"{"normalizeWidthToCellRows":true}"#).unwrap()).unwrap();
++    assert_eq!(result, serde_json::json!({"ok":true,"changed":true,"tableWidth":42852}));
++    assert_eq!(serde_json::to_value(&table(&core).cells).unwrap(), before_cells);
++    let mut expected = before_table;
++    expected["common"]["width"] = serde_json::json!(42852);
++    let mut raw = vec![0u8; 36];
++    raw.copy_from_slice(&table(&core).raw_ctrl_data);
++    raw[common_obj_offsets::WIDTH].copy_from_slice(&41952u32.to_le_bytes());
++    assert_eq!(serde_json::to_value(raw).unwrap(), expected["raw_ctrl_data"]);
++    expected["raw_ctrl_data"] = serde_json::to_value(&table(&core).raw_ctrl_data).unwrap();
++    assert_eq!(snapshot(table(&core)), expected);
++    assert_eq!(raw_width(table(&core)), 42852);
++    let props: serde_json::Value = serde_json::from_str(
++        &core.get_table_properties_native(0, 0, 0).unwrap()).unwrap();
++    assert_eq!(props["tableWidth"], 42852);
++    let once = snapshot(table(&core));
++    let again: serde_json::Value = serde_json::from_str(
++        &core.set_table_properties_native(0, 0, 0,
++            r#"{"normalizeWidthToCellRows":true}"#).unwrap()).unwrap();
++    assert_eq!(again["changed"], false);
++    assert_eq!(snapshot(table(&core)), once);
++}
++
++#[test]
++fn explicit_normalization_never_shrinks_larger_declared_width() {
++    let mut fixture = merged_fixture();
++    fixture.sync_ctrl_width(50000);
++    let mut core = core_with(fixture);
++    let before = snapshot(table(&core));
++    core.set_table_properties_native(0, 0, 0,
++        r#"{"normalizeWidthToCellRows":true}"#).unwrap();
++    assert_eq!(snapshot(table(&core)), before);
++}
++
++#[test]
++fn normalization_false_and_unrelated_setter_do_not_repair_legacy_width() {
++    for payload in [r#"{"normalizeWidthToCellRows":false}"#, r#"{"pageBreak":2}"#] {
++        let mut fixture = merged_fixture();
++        fixture.cells[0].width = 28868;
++        let mut core = core_with(fixture);
++        let before_cells = serde_json::to_value(&table(&core).cells).unwrap();
++        core.set_table_properties_native(0, 0, 0, payload).unwrap();
++        assert_eq!(table(&core).common.width, 41952);
++        assert_eq!(serde_json::to_value(&table(&core).cells).unwrap(), before_cells);
++    }
++}
++
++#[test]
++fn normalization_rejects_mixed_or_nonboolean_requests_without_mutation() {
++    for payload in [
++        r#"{"normalizeWidthToCellRows":true,"pageBreak":2}"#,
++        r#"{"normalizeWidthToCellRows":"true"}"#,
++        r#"{"normalizeWidthToCellRows":null}"#,
++    ] {
++        let mut core = core_with(merged_fixture());
++        let before = snapshot(table(&core));
++        assert!(core.set_table_properties_native(0, 0, 0, payload).is_err());
++        assert_eq!(snapshot(table(&core)), before);
++    }
++}
++
++#[test]
++fn normalization_rejects_unsupported_geometry_before_mutation() {
++    for kind in 0..5 {
++        let mut fixture = merged_fixture();
++        fixture.cells[0].width = 28868;
++        match kind {
++            0 => fixture.common.width_criterion = SizeCriterion::Column,
++            1 => fixture.cell_spacing = 10,
++            2 => fixture.common.width = 0,
++            3 => { fixture.cells.pop(); },
++            _ => fixture.cells[0].width = u32::MAX,
++        }
++        let mut core = core_with(merged_fixture());
++        *table_mut(&mut core) = fixture;
++        let before = snapshot(table(&core));
++        assert!(core.set_table_properties_native(0, 0, 0,
++            r#"{"normalizeWidthToCellRows":true}"#).is_err());
++        assert_eq!(snapshot(table(&core)), before);
++    }
++}
++
++#[test]
++fn declaration_sync_never_extends_empty_or_short_raw_data() {
++    for length in [0, 4, 12, 15, 16, 19, 36] {
++        let mut table = merged_fixture();
++        table.raw_ctrl_data = vec![0x5a; length];
++        let original = table.raw_ctrl_data.clone();
++        table.sync_ctrl_width(42852);
++        assert_eq!(table.raw_ctrl_data.len(), length);
++        assert_eq!(table.common.width, 42852);
++        if length >= common_obj_offsets::WIDTH.end {
++            assert_eq!(raw_width(&table), 42852);
++            assert_eq!(&table.raw_ctrl_data[..12], &original[..12]);
++            assert_eq!(&table.raw_ctrl_data[16..], &original[16..]);
++        } else {
++            assert_eq!(table.raw_ctrl_data, original);
++        }
++    }
++}
+diff --git a/src/renderer/mod.rs b/src/renderer/mod.rs
+index 9f9251f..9ca006e 100644
+--- a/src/renderer/mod.rs
++++ b/src/renderer/mod.rs
+@@ -9,6 +9,8 @@ use crate::model::control::Control;
+ use crate::model::paragraph::LineSeg;
+ use crate::model::style::{LineSpacingType, UnderlineType};
+ 
++#[cfg(any(target_arch = "wasm32", test))]
++pub(crate) mod body_ink_clip;
+ pub mod canvas;
+ pub mod canvas_text_font;
+ pub mod canvaskit_policy;
+diff --git a/src/renderer/web_canvas.rs b/src/renderer/web_canvas.rs
+index 4b6fde7..2ef2c34 100644
+--- a/src/renderer/web_canvas.rs
++++ b/src/renderer/web_canvas.rs
+@@ -39,6 +39,150 @@ use crate::paint::{
+ 
+ const TEXT_MARK_CLIP_RIGHT_PAD: f64 = 48.0;
+ 
++#[cfg(target_arch = "wasm32")]
++#[derive(Clone, Copy, PartialEq)]
++struct BodyCanvasTransform {
++    a: f64,
++    b: f64,
++    c: f64,
++    d: f64,
++    e: f64,
++    f: f64,
++}
++
++#[cfg(target_arch = "wasm32")]
++impl BodyCanvasTransform {
++    fn read(ctx: &CanvasRenderingContext2d) -> Option<Self> {
++        let m = ctx.get_transform().ok()?;
++        let value = Self {
++            a: m.a(), b: m.b(), c: m.c(), d: m.d(), e: m.e(), f: m.f(),
++        };
++        [value.a, value.b, value.c, value.d, value.e, value.f]
++            .into_iter()
++            .all(f64::is_finite)
++            .then_some(value)
++    }
++
++    fn is_page_axis_aligned(self) -> bool {
++        self.b == 0.0 && self.c == 0.0 && self.a > 0.0 && self.d > 0.0
++    }
++
++    fn apply(self, ctx: &CanvasRenderingContext2d) -> bool {
++        ctx.set_transform(self.a, self.b, self.c, self.d, self.e, self.f).is_ok()
++    }
++}
++
++#[cfg(target_arch = "wasm32")]
++#[derive(Clone, Copy)]
++struct BodyInkScope {
++    logical: BoundingBox,
++    strict: BoundingBox,
++    transform: BodyCanvasTransform,
++}
++
++/// Properties changed by the supplied Canvas painters. A temporary paint clip
++/// must not discard their state changes when its save frame is restored.
++/// The current path is intentionally untouched by save/restore, as in Canvas.
++#[cfg(target_arch = "wasm32")]
++struct BodyPaintState {
++    fill: JsValue,
++    stroke: JsValue,
++    font: String,
++    align: String,
++    baseline: String,
++    alpha: f64,
++    composite: Result<String, JsValue>,
++    line_width: f64,
++    line_cap: String,
++    line_join: String,
++    miter_limit: f64,
++    dash: js_sys::Array,
++    dash_offset: f64,
++    shadow_color: String,
++    shadow_blur: f64,
++    shadow_x: f64,
++    shadow_y: f64,
++    filter: String,
++}
++
++#[cfg(target_arch = "wasm32")]
++#[allow(deprecated)]
++impl BodyPaintState {
++    fn capture(ctx: &CanvasRenderingContext2d) -> Self {
++        Self {
++            fill: ctx.fill_style(),
++            stroke: ctx.stroke_style(),
++            font: ctx.font(),
++            align: ctx.text_align(),
++            baseline: ctx.text_baseline(),
++            alpha: ctx.global_alpha(),
++            composite: ctx.global_composite_operation(),
++            line_width: ctx.line_width(),
++            line_cap: ctx.line_cap(),
++            line_join: ctx.line_join(),
++            miter_limit: ctx.miter_limit(),
++            dash: ctx.get_line_dash(),
++            dash_offset: ctx.line_dash_offset(),
++            shadow_color: ctx.shadow_color(),
++            shadow_blur: ctx.shadow_blur(),
++            shadow_x: ctx.shadow_offset_x(),
++            shadow_y: ctx.shadow_offset_y(),
++            filter: ctx.filter(),
++        }
++    }
++
++    fn apply(self, ctx: &CanvasRenderingContext2d) {
++        ctx.set_fill_style(&self.fill);
++        ctx.set_stroke_style(&self.stroke);
++        ctx.set_font(&self.font);
++        ctx.set_text_align(&self.align);
++        ctx.set_text_baseline(&self.baseline);
++        ctx.set_global_alpha(self.alpha);
++        if let Ok(composite) = self.composite {
++            let _ = ctx.set_global_composite_operation(&composite);
++        }
++        ctx.set_line_width(self.line_width);
++        ctx.set_line_cap(&self.line_cap);
++        ctx.set_line_join(&self.line_join);
++        ctx.set_miter_limit(self.miter_limit);
++        let _ = ctx.set_line_dash(&self.dash);
++        ctx.set_line_dash_offset(self.dash_offset);
++        ctx.set_shadow_color(&self.shadow_color);
++        ctx.set_shadow_blur(self.shadow_blur);
++        ctx.set_shadow_offset_x(self.shadow_x);
++        ctx.set_shadow_offset_y(self.shadow_y);
++        ctx.set_filter(&self.filter);
++    }
++}
++
++#[cfg(target_arch = "wasm32")]
++fn plain_body_ink_run(bbox: &BoundingBox, run: &TextRunNode) -> bool {
++    use super::body_ink_clip::finite_positive_box;
++    let s = &run.style;
++    let text = run.display_or_text();
++    finite_positive_box(*bbox)
++        // None is the normal K0 replay contract. Invalid supplied owner
++        // boundaries must not gain eligibility through painter fallback.
++        && (run.layout_positions.is_none()
++            || run.validated_layout_positions_for(text).is_some())
++        && run.baseline.is_finite()
++        && run.rotation == 0.0
++        && !run.is_vertical
++        && run.char_overlap.is_none()
++        && s.outline_type == 0
++        && s.shadow_type == 0
++        && !s.emboss
++        && !s.engrave
++        && s.underline == UnderlineType::None
++        && !s.strikethrough
++        && s.emphasis_dot == 0
++        && s.tab_leaders.is_empty()
++        && crate::model::color::char_shade(s.shade_color).is_none()
++        && !text.contains('\u{FFFC}')
++        && expand_pua_render_text(text) == text
++        && expand_pua_old_hangul_canvas(text) == text
++}
++
+ /// Returns a conservative replay envelope for text ops that may be culled.
+ /// `None` means fail closed: replay the op and let the Canvas clip decide.
+ fn partial_text_replay_bounds(op: &PaintOp) -> Option<BoundingBox> {
+@@ -379,6 +523,10 @@ pub struct WebCanvasRenderer {
+     active_decoration_trim: usize,
+     suppress_text_glyphs: bool,
+     metric_descriptor_mismatch: std::cell::Cell<bool>,
++    body_ink_scopes: Vec<BodyInkScope>,
++    body_ink_run_bbox: Option<BoundingBox>,
++    body_ink_blocked: bool,
++    body_ink_clip_failed: std::cell::Cell<bool>,
+ }
+ 
+ #[cfg(target_arch = "wasm32")]
+@@ -407,6 +555,10 @@ impl WebCanvasRenderer {
+             active_decoration_trim: 0,
+             suppress_text_glyphs: false,
+             metric_descriptor_mismatch: std::cell::Cell::new(false),
++            body_ink_scopes: Vec::new(),
++            body_ink_run_bbox: None,
++            body_ink_blocked: false,
++            body_ink_clip_failed: std::cell::Cell::new(false),
+         })
+     }
+ 
+@@ -507,11 +659,181 @@ impl WebCanvasRenderer {
+         self.transparent_page_background = false;
+     }
+ 
+-    /// 개별 노드 렌더링
++    fn body_scope(&self, logical: BoundingBox, strict: BoundingBox) -> Option<BodyInkScope> {
++        use super::body_ink_clip::finite_positive_box;
++        if self.body_ink_blocked
++            || self.show_paragraph_marks
++            || self.show_control_codes
++            || !finite_positive_box(logical)
++            || !finite_positive_box(strict)
++        {
++            return None;
++        }
++        let transform = BodyCanvasTransform::read(&self.ctx)?;
++        transform.is_page_axis_aligned().then_some(BodyInkScope {
++            logical, strict, transform,
++        })
++    }
++
++    fn body_run_can_repair(&self, bbox: &BoundingBox, run: &TextRunNode) -> bool {
++        !self.body_ink_blocked
++            && !self.show_paragraph_marks
++            && !self.show_control_codes
++            && !self.body_ink_scopes.is_empty()
++            && plain_body_ink_run(bbox, run)
++    }
++
++    fn fail_body_clip_closed(&self) {
++        self.body_ink_clip_failed.set(true);
++        self.ctx.begin_path();
++        self.ctx.clip();
++    }
++
++    /// Install each deferred Body clip in its original coordinate frame.
++    /// Other active clips, including partial and cell clips, remain intersected.
++    fn clip_body_paint(&self, glyph: Option<(BoundingBox, BoundingBox)>) {
++        if self.body_ink_scopes.is_empty() {
++            return;
++        }
++        let Some(current) = BodyCanvasTransform::read(&self.ctx) else {
++            self.fail_body_clip_closed();
++            return;
++        };
++        let frames_match = self.body_ink_scopes.iter().all(|scope| scope.transform == current);
++        for scope in &self.body_ink_scopes {
++            if !scope.transform.apply(&self.ctx) {
++                self.fail_body_clip_closed();
++                let _ = current.apply(&self.ctx);
++                return;
++            }
++            self.ctx.begin_path();
++            self.ctx.rect(scope.strict.x, scope.strict.y, scope.strict.width, scope.strict.height);
++            if frames_match {
++                if let Some((logical, ink)) = glyph {
++                    if let Some(extension) = super::body_ink_clip::body_top_ink_extension(
++                        scope.logical, logical, ink,
++                    ) {
++                        self.ctx.rect(extension.x, extension.y, extension.width, extension.height);
++                    }
++                }
++            }
++            self.ctx.clip();
++        }
++        if !current.apply(&self.ctx) {
++            self.fail_body_clip_closed();
++        }
++    }
++
++    /// Called after the painter selects the actual font and horizontal fit,
++    /// before its existing translate/scale/fillText sequence.
++    fn clip_body_glyph(
++        &self,
++        cluster: &str,
++        x: f64,
++        baseline: f64,
++        horizontal_scale: f64,
++        char_index: usize,
++        positions: &[f64],
++        replay_text: &str,
++    ) {
++        if self.body_ink_scopes.is_empty() {
++            return;
++        }
++        let measured = (|| {
++            let run = self.body_ink_run_bbox?;
++            if self.metric_descriptor_mismatch.get()
++                || !horizontal_scale.is_finite()
++                || horizontal_scale <= 0.0
++                || !x.is_finite()
++                || !baseline.is_finite()
++                || self.ctx.filter() != "none"
++                || self.ctx.global_composite_operation().ok().as_deref() != Some("source-over")
++                || self.ctx.shadow_blur() != 0.0
++                || self.ctx.shadow_offset_x() != 0.0
++                || self.ctx.shadow_offset_y() != 0.0
++                || !matches!(self.ctx.shadow_color().as_str(),
++                    "rgba(0, 0, 0, 0)" | "transparent" | "#00000000")
++            {
++                return None;
++            }
++            super::validated_replay_positions(replay_text, Some(positions))?;
++            let end = char_index.checked_add(cluster.chars().count())?;
++            let start_x = *positions.get(char_index)?;
++            let end_x = *positions.get(end)?;
++            let logical = BoundingBox::new(run.x + start_x, run.y, end_x - start_x, run.height);
++            if !super::body_ink_clip::finite_positive_box(logical)
++                || !run.contains(&logical)
++                || !self.body_ink_scopes.iter().all(|scope| scope.logical.contains(&logical))
++            {
++                return None;
++            }
++            let metrics = self.ctx.measure_text(cluster).ok()?;
++            let left = metrics.actual_bounding_box_left();
++            let right = metrics.actual_bounding_box_right();
++            let ascent = metrics.actual_bounding_box_ascent();
++            let descent = metrics.actual_bounding_box_descent();
++            if ![left, right, ascent, descent].into_iter().all(f64::is_finite) {
++                return None;
++            }
++            let ink_left = x - left * horizontal_scale;
++            let ink_right = x + right * horizontal_scale;
++            let ink = BoundingBox::new(
++                ink_left, baseline - ascent, ink_right - ink_left, ascent + descent,
++            );
++            super::body_ink_clip::finite_positive_box(ink).then_some((logical, ink))
++        })();
++        self.clip_body_paint(measured);
++    }
++
++    fn with_strict_body_clip(&mut self, paint: impl FnOnce(&mut Self)) {
++        if self.body_ink_scopes.is_empty() {
++            paint(self);
++            return;
++        }
++        self.ctx.save();
++        self.clip_body_paint(None);
++        let scopes = std::mem::take(&mut self.body_ink_scopes);
++        let previous_blocked = self.body_ink_blocked;
++        self.body_ink_blocked = true;
++        paint(self);
++        let state = BodyPaintState::capture(&self.ctx);
++        self.ctx.restore();
++        state.apply(&self.ctx);
++        self.body_ink_blocked = previous_blocked;
++        self.body_ink_scopes = scopes;
++    }
++
++    /// Object subtrees retain an enclosing strict clip, including any legacy
++    /// transform that remains open until their children have been rendered.
+     fn render_node(&mut self, node: &RenderNode) {
+         if !node.visible {
+             return;
+         }
++        let structural = matches!(&node.node_type,
++            RenderNodeType::Body { .. }
++                | RenderNodeType::Column(_)
++                | RenderNodeType::TextLine(_)
++                | RenderNodeType::Table(_)
++                | RenderNodeType::TableCell(_)
++                | RenderNodeType::TextBox
++                | RenderNodeType::Group(_)
++        );
++        let eligible_text = match &node.node_type {
++            RenderNodeType::TextRun(run) => self.body_run_can_repair(&node.bbox, run),
++            _ => false,
++        };
++        if !self.body_ink_scopes.is_empty() && !structural && !eligible_text {
++            self.with_strict_body_clip(|renderer| renderer.render_node_contents(node));
++        } else {
++            self.render_node_contents(node);
++        }
++    }
++
++    /// 개별 노드 렌더링
++    fn render_node_contents(&mut self, node: &RenderNode) {
++        if !node.visible {
++            return;
++        }
+ 
+         // [#6028] soft-wrap 줄-말미 공백 트림 대상 특정 (svg.rs 와 동일 규칙).
+         if matches!(&node.node_type, RenderNodeType::TextLine(_)) {
+@@ -538,6 +860,7 @@ impl WebCanvasRenderer {
+                 .flatten();
+         }
+ 
++        let mut deferred_body = false;
+         match &node.node_type {
+             RenderNodeType::Page(page) => {
+                 self.begin_page(page.width, page.height);
+@@ -578,8 +901,14 @@ impl WebCanvasRenderer {
+                 } else {
+                     4.0
+                 };
+-                self.ctx.rect(cr.x, cr.y, cr.width + right_pad, cr.height);
+-                self.ctx.clip();
++                let strict = BoundingBox::new(cr.x, cr.y, cr.width + right_pad, cr.height);
++                if let Some(scope) = self.body_scope(*cr, strict) {
++                    self.body_ink_scopes.push(scope);
++                    deferred_body = true;
++                } else {
++                    self.ctx.rect(strict.x, strict.y, strict.width, strict.height);
++                    self.ctx.clip();
++                }
+             }
+             RenderNodeType::TableCell(ref tc) if tc.clip => {
+                 self.ctx.save();
+@@ -634,6 +963,9 @@ impl WebCanvasRenderer {
+ 
+         // Body 클리핑 상태 복원 + 오버플로우 컨트롤 재렌더링
+         if matches!(node.node_type, RenderNodeType::Body { clip_rect: Some(_) }) {
++            if deferred_body {
++                self.body_ink_scopes.pop();
++            }
+             self.ctx.restore();
+             // 편집 모드: 여백을 벗어난 도형/이미지/표를 재렌더링 (좌우 넘침 허용)
+             if let RenderNodeType::Body {
+@@ -732,6 +1064,22 @@ impl WebCanvasRenderer {
+     }
+ 
+     fn render_paint_op(&mut self, op: &PaintOp) {
++        let eligible = match op {
++            PaintOp::TextRun { bbox, run, .. }
++                if text_visual_replay_role(op) == TextVisualReplayRole::BaseText =>
++            {
++                self.body_run_can_repair(bbox, run)
++            }
++            _ => false,
++        };
++        if !self.body_ink_scopes.is_empty() && !eligible {
++            self.with_strict_body_clip(|renderer| renderer.render_paint_op_contents(op));
++        } else {
++            self.render_paint_op_contents(op);
++        }
++    }
++
++    fn render_paint_op_contents(&mut self, op: &PaintOp) {
+         match op {
+             PaintOp::PageBackground { .. } if !self.should_render_page_background() => {}
+             PaintOp::PageBackground { bbox, background } => {
+@@ -878,6 +1226,8 @@ impl WebCanvasRenderer {
+     }
+ 
+     fn render_text_run(&mut self, bbox: &BoundingBox, run: &TextRunNode) {
++        let previous_ink_run = self.body_ink_run_bbox;
++        self.body_ink_run_bbox = self.body_run_can_repair(bbox, run).then_some(*bbox);
+         if let Some(ref overlap) = run.char_overlap {
+             self.draw_char_overlap(
+                 &run.text,
+@@ -988,6 +1338,7 @@ impl WebCanvasRenderer {
+                 }
+             }
+         }
++        self.body_ink_run_bbox = previous_ink_run;
+     }
+ 
+     fn render_rectangle(
+@@ -1375,10 +1726,16 @@ impl WebCanvasRenderer {
+                 match clip_kind {
+                     ClipKind::Body => {
+                         self.ctx.save();
+-                        self.ctx.begin_path();
+-                        self.ctx.rect(clip.x, clip.y, clip.width, clip.height);
+-                        self.ctx.clip();
+-                        self.render_layer_node(child, active_layer);
++                        if let Some(scope) = self.body_scope(*clip, *clip) {
++                            self.body_ink_scopes.push(scope);
++                            self.render_layer_node(child, active_layer);
++                            self.body_ink_scopes.pop();
++                        } else {
++                            self.ctx.begin_path();
++                            self.ctx.rect(clip.x, clip.y, clip.width, clip.height);
++                            self.ctx.clip();
++                            self.render_layer_node(child, active_layer);
++                        }
+                         self.ctx.restore();
+                     }
+                     ClipKind::TableCell => {
+@@ -1417,7 +1774,8 @@ impl WebCanvasRenderer {
+                     // Layout bbox alone does not contain all glyph ink. Cull only plain text
+                     // whose expanded replay envelope is outside the clip; risky effects and
+                     // editor-only text marks fail closed and are always replayed.
+-                    if !self.show_paragraph_marks
++                    if self.body_ink_scopes.is_empty()
++                        && !self.show_paragraph_marks
+                         && !self.show_control_codes
+                         && self.partial_clip.is_some_and(|clip| {
+                             partial_text_replay_bounds(op)
+@@ -2101,10 +2459,16 @@ impl WebCanvasRenderer {
+ impl LayerRenderer for WebCanvasRenderer {
+     fn render_page(&mut self, tree: &PageLayerTree) -> LayerRenderResult<()> {
+         self.metric_descriptor_mismatch.set(false);
++        self.body_ink_clip_failed.set(false);
+         validate_text_variant_scope(tree).map_err(|error| {
+             HwpError::RenderError(format!("invalid PageLayerTree text contract: {error}"))
+         })?;
+         self.render_layer_tree(tree);
++        if self.body_ink_clip_failed.get() {
++            return Err(HwpError::RenderError(
++                "Canvas Body clip coordinate frame could not be preserved".into(),
++            ));
++        }
+         if self.metric_descriptor_mismatch.get() {
+             return Err(HwpError::RenderError(
+                 "Canvas metric descriptor changed; prepare font metrics again".into(),
+@@ -2251,6 +2615,8 @@ impl Renderer for WebCanvasRenderer {
+                     if let Some((cx, cy, rx, ry)) =
+                         super::legacy_hft_bullet_geometry(cluster_str, style)
+                     {
++                        self.ctx.save();
++                        self.clip_body_paint(None);
+                         self.ctx.begin_path();
+                         self.ctx
+                             .ellipse(
+@@ -2264,6 +2630,7 @@ impl Renderer for WebCanvasRenderer {
+                             )
+                             .ok();
+                         self.ctx.fill();
++                        self.ctx.restore();
+                         continue;
+                     }
+                     if super::contains_old_hangul_jamo(cluster_str) {
+@@ -2297,6 +2664,7 @@ impl Renderer for WebCanvasRenderer {
+                             )
+                         {
+                             self.ctx.save();
++                            self.clip_body_paint(None);
+                             self.ctx.set_stroke_style_str(&color_to_css(style.color));
+                             self.ctx.set_line_width(stroke);
+                             self.ctx.begin_path();
+@@ -2329,6 +2697,9 @@ impl Renderer for WebCanvasRenderer {
+                             font_size
+                         );
+                         self.ctx.set_font(&fallback_font);
++                        self.clip_body_glyph(
++                            cluster_str, char_x, y, 1.0, *char_idx, &char_positions, text,
++                        );
+                         let _ = self.ctx.fill_text(cluster_str, char_x, y);
+                         self.ctx.restore();
+                         self.ctx.set_font(font); // 원래 폰트 복원
+@@ -2349,6 +2720,9 @@ impl Renderer for WebCanvasRenderer {
+ 
+                     if needs_halfwidth_scale {
+                         self.ctx.save();
++                        self.clip_body_glyph(
++                            cluster_str, char_x, y, 0.5, *char_idx, &char_positions, text,
++                        );
+                         self.ctx.translate(char_x, y).unwrap_or(());
+                         self.ctx.scale(0.5, 1.0).unwrap_or(());
+                         let _ = self.ctx.fill_text(cluster_str, 0.0, 0.0);
+@@ -2386,6 +2760,10 @@ impl Renderer for WebCanvasRenderer {
+                         };
+ 
+                         self.ctx.save();
++                        self.clip_body_glyph(
++                            cluster_str, char_x, y, ratio * fit_scale.unwrap_or(1.0),
++                            *char_idx, &char_positions, text,
++                        );
+                         self.ctx.translate(char_x, y).unwrap_or(());
+                         self.ctx
+                             .scale(ratio * fit_scale.unwrap_or(1.0), 1.0)
+@@ -3012,6 +3390,7 @@ impl WebCanvasRenderer {
+         let number_font_size = (font_size * 0.5).max(1.0);
+ 
+         self.ctx.save();
++        self.clip_body_paint(None);
+         self.ctx.set_stroke_style_str(&color);
+         self.ctx.set_fill_style_str(&color);
+         self.ctx.set_line_width((font_size * 0.04).max(0.6));
+diff --git a/.local/hosting-width-primary-20261023/engine-source/src/renderer/body_ink_clip.rs b/src/renderer/body_ink_clip.rs
+new file mode 100644
+index 0000000..499eb33
+--- /dev/null
++++ b/src/renderer/body_ink_clip.rs
+@@ -0,0 +1,102 @@
++use super::render_tree::BoundingBox;
++
++pub(crate) fn finite_positive_box(b: BoundingBox) -> bool {
++    [b.x, b.y, b.width, b.height, b.x + b.width, b.y + b.height]
++        .into_iter()
++        .all(f64::is_finite)
++        && b.width > 0.0
++        && b.height > 0.0
++}
++
++/// Additional clip area for one measured, fill-only glyph. The caller unions
++/// this with the unchanged strict Body rectangle for that glyph alone.
++/// Layout geometry grants eligibility; measured Canvas ink grants extent.
++pub(crate) fn body_top_ink_extension(
++    body: BoundingBox,
++    logical_glyph: BoundingBox,
++    ink: BoundingBox,
++) -> Option<BoundingBox> {
++    if !finite_positive_box(body)
++        || !finite_positive_box(logical_glyph)
++        || !finite_positive_box(ink)
++        || !body.contains(&logical_glyph)
++        || ink.y >= body.y
++    {
++        return None;
++    }
++    let left = ink.x.max(body.x);
++    let right = (ink.x + ink.width).min(body.x + body.width);
++    let extension = BoundingBox::new(left, ink.y, right - left, body.y - ink.y);
++    finite_positive_box(extension).then_some(extension)
++}
++
++#[cfg(test)]
++mod tests {
++    use super::*;
++
++    fn body() -> BoundingBox {
++        BoundingBox::new(10.0, 132.26666666666668, 300.0, 400.0)
++    }
++
++    fn glyph() -> BoundingBox {
++        BoundingBox::new(20.0, body().y, 12.0, 16.0)
++    }
++
++    fn ink() -> BoundingBox {
++        BoundingBox::new(19.0, 131.1999969482422, 14.0, 15.0)
++    }
++
++    #[test]
++    fn measured_top_only_without_padding() {
++        let extension = body_top_ink_extension(body(), glyph(), ink()).unwrap();
++        assert_eq!(extension.x, ink().x);
++        assert_eq!(extension.y, ink().y);
++        assert_eq!(extension.width, ink().width);
++        assert_eq!(extension.height, body().y - ink().y);
++        assert_eq!(extension.y + extension.height, body().y);
++    }
++
++    #[test]
++    fn layout_crossing_any_body_edge_remains_strict() {
++        let b = body();
++        for logical in [
++            BoundingBox::new(b.x - 1.0, b.y, 12.0, 16.0),
++            BoundingBox::new(b.x, b.y - 1.0, 12.0, 16.0),
++            BoundingBox::new(b.x + b.width - 11.0, b.y, 12.0, 16.0),
++            BoundingBox::new(b.x, b.y + b.height - 15.0, 12.0, 16.0),
++        ] {
++            assert!(body_top_ink_extension(b, logical, ink()).is_none());
++        }
++    }
++
++    #[test]
++    fn extension_keeps_logical_body_horizontal_limits() {
++        let b = body();
++        let wide = BoundingBox::new(b.x - 10.0, ink().y, b.width + 20.0, 15.0);
++        let extension = body_top_ink_extension(b, glyph(), wide).unwrap();
++        assert_eq!(extension.x, b.x);
++        assert_eq!(extension.width, b.width);
++        assert_eq!(extension.y + extension.height, b.y);
++    }
++
++    #[test]
++    fn no_top_overhang_remains_strict() {
++        let at_edge = BoundingBox::new(20.0, body().y, 12.0, 15.0);
++        assert!(body_top_ink_extension(body(), glyph(), at_edge).is_none());
++    }
++
++    #[test]
++    fn invalid_and_empty_geometry_remains_strict() {
++        for bad in [
++            BoundingBox::new(f64::NAN, 131.0, 12.0, 15.0),
++            BoundingBox::new(20.0, f64::NEG_INFINITY, 12.0, 15.0),
++            BoundingBox::new(20.0, 131.0, 0.0, 15.0),
++            BoundingBox::new(20.0, 131.0, 12.0, -1.0),
++            BoundingBox::new(f64::MAX, 131.0, f64::MAX, 15.0),
++        ] {
++            assert!(body_top_ink_extension(body(), glyph(), bad).is_none());
++            assert!(body_top_ink_extension(body(), bad, ink()).is_none());
++            assert!(body_top_ink_extension(bad, glyph(), ink()).is_none());
++        }
++    }
++}

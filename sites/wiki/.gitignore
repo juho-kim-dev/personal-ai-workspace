@@ -1,0 +1,9 @@
+node_modules/
+dist/
+.wrangler/
+.sites-runtime/
+.openai/hosting.json
+.env*
+*.tsbuildinfo
+.next/
+.vinext/

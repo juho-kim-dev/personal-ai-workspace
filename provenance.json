@@ -1,0 +1,339 @@
+{
+  "schemaVersion": 1,
+  "description": "Reviewed selected source; no product data or history copied. Private origin mapping is held by the maintainer. Paths and source commits identify the extraction basis.",
+  "files": [
+    {
+      "role": "notes",
+      "path": "components/notes/lib/client/graph.ts",
+      "source_commit": "8de9a70c0f31771b90ee50f070be0b6e0faa06c3",
+      "source_path": "lib/client/graph.ts",
+      "source_sha256": "02ec4887c5ec0ec14834b431b953cb76c9a70080a4495396a55d723e5b9efec8",
+      "sha256": "02ec4887c5ec0ec14834b431b953cb76c9a70080a4495396a55d723e5b9efec8",
+      "change": "Exact bytes"
+    },
+    {
+      "role": "notes",
+      "path": "components/notes/lib/client/notes.ts",
+      "source_commit": "8de9a70c0f31771b90ee50f070be0b6e0faa06c3",
+      "source_path": "lib/client/notes.ts",
+      "source_sha256": "3db590609007dcd3751b055e71e97885bedb25685ade23e2cd84b9a08ae77899",
+      "sha256": "3db590609007dcd3751b055e71e97885bedb25685ade23e2cd84b9a08ae77899",
+      "change": "Exact bytes"
+    },
+    {
+      "role": "notes",
+      "path": "components/notes/lib/client/note-metadata.ts",
+      "source_commit": "8de9a70c0f31771b90ee50f070be0b6e0faa06c3",
+      "source_path": "lib/client/note-metadata.ts",
+      "source_sha256": "b0dcbfbab9ba8593eb832c83f37720132cdd5d0cd8821184c5188f1cc9e69c42",
+      "sha256": "b0dcbfbab9ba8593eb832c83f37720132cdd5d0cd8821184c5188f1cc9e69c42",
+      "change": "Exact bytes"
+    },
+    {
+      "role": "notes",
+      "path": "components/notes/lib/client/search-query.ts",
+      "source_commit": "8de9a70c0f31771b90ee50f070be0b6e0faa06c3",
+      "source_path": "lib/client/search-query.ts",
+      "source_sha256": "85c64c74f57777ff4152839800dac8c1e6e6e7b7a4f61626fcb50057c055a735",
+      "sha256": "85c64c74f57777ff4152839800dac8c1e6e6e7b7a4f61626fcb50057c055a735",
+      "change": "Exact bytes"
+    },
+    {
+      "role": "notes",
+      "path": "components/notes/lib/client/canvas-document.ts",
+      "source_commit": "8de9a70c0f31771b90ee50f070be0b6e0faa06c3",
+      "source_path": "lib/client/canvas-document.ts",
+      "source_sha256": "9c9b733d34317d9ff7ffe58b4b2ce27cb8ed75b328346f7dc867844645b4149d",
+      "sha256": "9c9b733d34317d9ff7ffe58b4b2ce27cb8ed75b328346f7dc867844645b4149d",
+      "change": "Exact bytes"
+    },
+    {
+      "role": "notes",
+      "path": "components/notes/lib/client/draft-journal.ts",
+      "source_commit": "8de9a70c0f31771b90ee50f070be0b6e0faa06c3",
+      "source_path": "lib/client/draft-journal.ts",
+      "source_sha256": "2f143291afa0e8587556fdea33218f21240a1f330dd2185e04c0efec6e33bd7a",
+      "sha256": "eb29430a988227ca669e51339670091b9c91b98dc86b75b8983dec1ad8e10bc3",
+      "change": "Public-only local draft storage namespace; algorithm unchanged"
+    },
+    {
+      "role": "notes",
+      "path": "components/notes/lib/client/draft-recovery.ts",
+      "source_commit": "8de9a70c0f31771b90ee50f070be0b6e0faa06c3",
+      "source_path": "lib/client/draft-recovery.ts",
+      "source_sha256": "db8d4a48cbc72fdd6dbe62acec8b2950a67a3ec392efb27541eae6c3ef010607",
+      "sha256": "db8d4a48cbc72fdd6dbe62acec8b2950a67a3ec392efb27541eae6c3ef010607",
+      "change": "Exact bytes"
+    },
+    {
+      "role": "notes",
+      "path": "components/notes/lib/client/shared-documents.ts",
+      "source_commit": "8de9a70c0f31771b90ee50f070be0b6e0faa06c3",
+      "source_path": "lib/client/shared-documents.ts",
+      "source_sha256": "8f30e27d781a9786c06a38a25b1279a99ddb7aa1b039a0115b2fe8d3b0ad2902",
+      "sha256": "8f30e27d781a9786c06a38a25b1279a99ddb7aa1b039a0115b2fe8d3b0ad2902",
+      "change": "Exact bytes"
+    },
+    {
+      "role": "notes",
+      "path": "components/notes/lib/client/core-features.ts",
+      "source_commit": "8de9a70c0f31771b90ee50f070be0b6e0faa06c3",
+      "source_path": "lib/client/core-features.ts",
+      "source_sha256": "4f5cba7d4054ba7d47a7b262950de7d31ae1d15c3c6d9598f77273c5e79580b3",
+      "sha256": "539fbe2fc71a199704072db641bc4dee717caf82dcbc419fd9269c22ca1802a2",
+      "change": "Extract complete YAML property helpers; omit unrelated workspace/composer features and imports"
+    },
+    {
+      "role": "notes",
+      "path": "components/notes/lib/client/api.ts",
+      "source_commit": "8de9a70c0f31771b90ee50f070be0b6e0faa06c3",
+      "source_path": "lib/client/api.ts",
+      "source_sha256": "6a3beea637b86cec8941e0f6db5d716954ac63a8945b011a683cacc726171ddc",
+      "sha256": "6bc5bcc2d4e767eded9ac69bffaabebf10222c9ec0561d9a98302c27b6f803e7",
+      "change": "Extract VaultFile type only; no private transport or authentication"
+    },
+    {
+      "role": "notes",
+      "path": "components/notes/app/components/GraphView.tsx",
+      "source_commit": "8de9a70c0f31771b90ee50f070be0b6e0faa06c3",
+      "source_path": "app/components/GraphView.tsx",
+      "source_sha256": "d0eb2087f38ab390e8a3de97e2c8dfe4977ce6b8de57d68f268bef77228c32cd",
+      "sha256": "64014294e599e77b0ff41597055f6f947f77b60cd2584f6769dd9d1ebebb9c06",
+      "change": "Role-only namespace and relative imports; Canvas uses existing file-open fallback instead of private embedded editor host"
+    },
+    {
+      "role": "notes",
+      "path": "components/notes/app/components/graph-view.css",
+      "source_commit": "8de9a70c0f31771b90ee50f070be0b6e0faa06c3",
+      "source_path": "app/components/graph-view.css",
+      "source_sha256": "69a86dcf6b88442b7daae788c157ac3a0988bbffc8d1f984f38fa5ef42448b23",
+      "sha256": "69a86dcf6b88442b7daae788c157ac3a0988bbffc8d1f984f38fa5ef42448b23",
+      "change": "Role-only namespace and relative imports; Canvas uses existing file-open fallback instead of private embedded editor host"
+    },
+    {
+      "role": "notes",
+      "path": "components/notes/app/components/CanvasEditor.tsx",
+      "source_commit": "8de9a70c0f31771b90ee50f070be0b6e0faa06c3",
+      "source_path": "app/components/CanvasEditor.tsx",
+      "source_sha256": "bc346e847465e02ca773e0b1f4f02603a5df9e6b87af27b931affa6b425301c6",
+      "sha256": "a33938999b00662b39501d84df0392c38779942efbca045d83ecff6b15fb874d",
+      "change": "Role-only namespace and relative imports; Canvas uses existing file-open fallback instead of private embedded editor host"
+    },
+    {
+      "role": "notes",
+      "path": "components/notes/app/components/CanvasEditor.module.css",
+      "source_commit": "8de9a70c0f31771b90ee50f070be0b6e0faa06c3",
+      "source_path": "app/components/CanvasEditor.module.css",
+      "source_sha256": "8111fe5705fc189e631a6310d8df906e39fea2ee3802e673620b74295cddb018",
+      "sha256": "8111fe5705fc189e631a6310d8df906e39fea2ee3802e673620b74295cddb018",
+      "change": "Role-only namespace and relative imports; Canvas uses existing file-open fallback instead of private embedded editor host"
+    },
+    {
+      "role": "conversations",
+      "path": "components/conversations/core.js",
+      "source_commit": "80273bcc5a3287429755037397086813bd63897c",
+      "source_path": "dist/lib/core.js",
+      "source_sha256": "db973a788aa4c299e4d31c8c02b69fcfe1a6d49f8cccf238ad2e4dccded1806b",
+      "sha256": "fa5ef9206a1cd701be803c1dcffd7f7ef429b2be903fdc0e72e7a23b0d362b33",
+      "change": "Retain search, Unicode highlights, links and HTTP repository; omit hardcoded private-demo loader"
+    },
+    {
+      "role": "boards",
+      "path": "components/boards/workspace-validation.mjs",
+      "source_commit": "021fdd3da8f0009818edaa3136e5a0df7f7a6628",
+      "source_path": "site/lib/<private-role-directory>/workspace-validation.mjs",
+      "source_sha256": "61096bdb4e3e8d123ed919713ef412c8a74eaccd7cfb90a72cf3d8055f29a2b6",
+      "sha256": "61096bdb4e3e8d123ed919713ef412c8a74eaccd7cfb90a72cf3d8055f29a2b6",
+      "change": "Exact bytes; original product directory alias omitted in public locator"
+    },
+    {
+      "role": "media",
+      "path": "components/media/saved-media.js",
+      "source_commit": "57d0c69de1b2679e604a183496267fd1f7aa63d3",
+      "source_path": "ui/saved-media.js",
+      "source_sha256": "8ca5134f8c08cf82fac6cc58491855be8ccee051bed8968aca5f9be26dcf412b",
+      "sha256": "b39e4900e5a0f402b49e72dca6730cbb282caab50d8ccbbeb51b07aeed0023ee",
+      "change": "Rename runtime namespace to MediaLibrary; media remains fixture-only"
+    },
+    {
+      "role": "media",
+      "path": "components/media/saved-corpus.js",
+      "source_commit": "57d0c69de1b2679e604a183496267fd1f7aa63d3",
+      "source_path": "ui/saved-corpus.js",
+      "source_sha256": "3a8ee5479b5e57b84d6d5ac0566f49aa7658b9aff6bd9a00f7535a935f2b81a3",
+      "sha256": "b0fcf912fb6eabe26ba51b161a43181310adea6a7e90629669649706e1e6ee45",
+      "change": "Role-only namespace; review/remove private loading before public build"
+    },
+    {
+      "role": "knowledge",
+      "path": "components/knowledge/contract.ts",
+      "source_commit": "4dde9daaa6df7aed80efe622e3d17034e5cc72f1",
+      "source_path": "lib/wiki-knowledge-contract.ts",
+      "source_sha256": "106cb20230cddcc47f204d5a7a42f5e3e0853fc3c49528461ec8992cd59d9410",
+      "sha256": "834eba7fbce17941ebd7d131b084d2522328d3167977a1618ba3391794a86286",
+      "change": "Extract shared error class; replace private hostname with public archive path or thread hash detection, preserving exact revision matching"
+    },
+    {
+      "role": "knowledge",
+      "path": "components/knowledge/error.ts",
+      "source_commit": "4dde9daaa6df7aed80efe622e3d17034e5cc72f1",
+      "source_path": "lib/wiki-store.ts",
+      "source_sha256": "295c324da524bbc0ba4288bcd1ab653ff5bc2f1eae786ae3da6ffc2ec0188249",
+      "sha256": "bb17b77e2230388b0b44a448276b3bb850282e141e96c85e761cafe86401fd29",
+      "change": "Extract shared validation error class only"
+    },
+    {
+      "role": "documents",
+      "path": "components/documents/documents.mjs",
+      "source_commit": "c17b03a6d663673bd742d19a9b0bdebd8a6e3f8e",
+      "source_path": "src/documents.mjs",
+      "source_sha256": "3467a1066ea9397e7fdb18d756fe61f5ce16fae1de46d84197a880c01d1128cb",
+      "sha256": "f272e48549e6ee8a3be78fa9153f1df3fe9d95d5aca9e0085e1f29c3a1ce6949",
+      "change": "Use included reviewed engine for initialization and roundtrip checks; not an independent parser"
+    },
+    {
+      "role": "documents",
+      "path": "components/documents/structured.mjs",
+      "source_commit": "c17b03a6d663673bd742d19a9b0bdebd8a6e3f8e",
+      "source_path": "src/structured.mjs",
+      "source_sha256": "90260e8b528682b77eb9823bf922892a6693d44f856299eb0bbbc7a04b694f4a",
+      "sha256": "90260e8b528682b77eb9823bf922892a6693d44f856299eb0bbbc7a04b694f4a",
+      "change": "Exact bytes"
+    },
+    {
+      "role": "documents",
+      "path": "components/documents/structured-snapshot.mjs",
+      "source_commit": "c17b03a6d663673bd742d19a9b0bdebd8a6e3f8e",
+      "source_path": "src/structured-snapshot.mjs",
+      "source_sha256": "768b5c1047d954971c4231223a1901d8f0eacef93cf0cc0cf3ade68a6ebc7c9a",
+      "sha256": "768b5c1047d954971c4231223a1901d8f0eacef93cf0cc0cf3ade68a6ebc7c9a",
+      "change": "Exact bytes"
+    },
+    {
+      "role": "documents",
+      "path": "components/documents/invariants.mjs",
+      "source_commit": "c17b03a6d663673bd742d19a9b0bdebd8a6e3f8e",
+      "source_path": "src/invariants.mjs",
+      "source_sha256": "2d68ef658b370f01684ea8ae51d568b95428137ee3d66e2f4655411438074194",
+      "sha256": "2d68ef658b370f01684ea8ae51d568b95428137ee3d66e2f4655411438074194",
+      "change": "Exact bytes"
+    },
+    {
+      "role": "documents",
+      "path": "components/documents/document-contract.mjs",
+      "source_commit": "c17b03a6d663673bd742d19a9b0bdebd8a6e3f8e",
+      "source_path": "src/document-contract.mjs",
+      "source_sha256": "a7901eeca7ef33928e85950d4a4444427439f3a046b156aec129bfc21a19f514",
+      "sha256": "a7901eeca7ef33928e85950d4a4444427439f3a046b156aec129bfc21a19f514",
+      "change": "Exact bytes"
+    },
+    {
+      "role": "documents",
+      "path": "components/documents/portability.mjs",
+      "source_commit": "c17b03a6d663673bd742d19a9b0bdebd8a6e3f8e",
+      "source_path": "src/portability.mjs",
+      "source_sha256": "f3215d149e2ce0aa0af8584d3e3402bd2693cba2041859c398b0cab664bc78bd",
+      "sha256": "f3215d149e2ce0aa0af8584d3e3402bd2693cba2041859c398b0cab664bc78bd",
+      "change": "Exact bytes"
+    },
+    {
+      "role": "documents",
+      "path": "components/documents/archive-proof.mjs",
+      "source_commit": "c17b03a6d663673bd742d19a9b0bdebd8a6e3f8e",
+      "source_path": "src/archive-proof.mjs",
+      "source_sha256": "e0267ebbf10a88b4f85f168b1bae32c3849a6ec51bc5470d3fcae1a35e54d1a7",
+      "sha256": "e0267ebbf10a88b4f85f168b1bae32c3849a6ec51bc5470d3fcae1a35e54d1a7",
+      "change": "Exact bytes"
+    },
+    {
+      "role": "documents",
+      "path": "components/documents/engine/rhwp.js",
+      "source_commit": "c17b03a6d663673bd742d19a9b0bdebd8a6e3f8e",
+      "source_path": "src/engine-candidate/rhwp.js",
+      "source_sha256": "2203d5ae635e4b196874c5ec52351a360f5e0c14711fb1314356c08e00fbc92b",
+      "sha256": "2203d5ae635e4b196874c5ec52351a360f5e0c14711fb1314356c08e00fbc92b",
+      "change": "Exact bytes"
+    },
+    {
+      "role": "documents",
+      "path": "components/documents/engine/rhwp_bg.wasm",
+      "source_commit": "c17b03a6d663673bd742d19a9b0bdebd8a6e3f8e",
+      "source_path": "src/engine-candidate/rhwp_bg.wasm",
+      "source_sha256": "47d2504d8760f375d02a2b06b204822a17a7145bc58eb0f2df20279c1a588e7b",
+      "sha256": "47d2504d8760f375d02a2b06b204822a17a7145bc58eb0f2df20279c1a588e7b",
+      "change": "Exact bytes"
+    },
+    {
+      "role": "documents",
+      "path": "components/documents/engine/rhwp.d.ts",
+      "source_commit": "c17b03a6d663673bd742d19a9b0bdebd8a6e3f8e",
+      "source_path": "src/engine-candidate/rhwp.d.ts",
+      "source_sha256": "d8fd1510b24d84dfcc2ca70f0e6543358254457b3748170ab91e190f2384ef61",
+      "sha256": "d8fd1510b24d84dfcc2ca70f0e6543358254457b3748170ab91e190f2384ef61",
+      "change": "Exact bytes"
+    },
+    {
+      "role": "documents",
+      "path": "components/documents/engine/rhwp_bg.wasm.d.ts",
+      "source_commit": "c17b03a6d663673bd742d19a9b0bdebd8a6e3f8e",
+      "source_path": "src/engine-candidate/rhwp_bg.wasm.d.ts",
+      "source_sha256": "4ee5a19d434c06a08a469f216868cd99210a48cbb8d190fcaf39baf505225940",
+      "sha256": "4ee5a19d434c06a08a469f216868cd99210a48cbb8d190fcaf39baf505225940",
+      "change": "Exact bytes"
+    },
+    {
+      "role": "documents",
+      "path": "components/documents/engine/LICENSE",
+      "source_commit": "c17b03a6d663673bd742d19a9b0bdebd8a6e3f8e",
+      "source_path": "src/engine-candidate/LICENSE",
+      "source_sha256": "1c3a7d5643b163a3ead4965e1bea33b832caee5bfca265efe42afcd7bc696b5b",
+      "sha256": "1c3a7d5643b163a3ead4965e1bea33b832caee5bfca265efe42afcd7bc696b5b",
+      "change": "Exact bytes"
+    },
+    {
+      "role": "documents",
+      "path": "components/documents/engine-lock.json",
+      "source_commit": "c17b03a6d663673bd742d19a9b0bdebd8a6e3f8e",
+      "source_path": "engine-lock.json",
+      "source_sha256": "cf9736ae8ecb43101d23ce90d50338002f2799cf2d6c066ec04da7f0df0d43f9",
+      "sha256": "1f93e63c8b4265a612f15bc4a08e810e6b5dbbb17114fa70224dcf2ad1ae8ad2",
+      "change": "Public manifest retains upstream, patches and runtime hashes; removes local paths and distinguishes historical build from public validation"
+    },
+    {
+      "role": "rhwp-MIT.txt",
+      "path": "licenses/rhwp-MIT.txt",
+      "source_commit": "c17b03a6d663673bd742d19a9b0bdebd8a6e3f8e",
+      "source_path": "licenses/rhwp-MIT.txt",
+      "source_sha256": "1c3a7d5643b163a3ead4965e1bea33b832caee5bfca265efe42afcd7bc696b5b",
+      "sha256": "1c3a7d5643b163a3ead4965e1bea33b832caee5bfca265efe42afcd7bc696b5b",
+      "change": "Exact bytes"
+    },
+    {
+      "role": "rhwp-third-party.md",
+      "path": "licenses/rhwp-third-party.md",
+      "source_commit": "c17b03a6d663673bd742d19a9b0bdebd8a6e3f8e",
+      "source_path": "licenses/rhwp-third-party.md",
+      "source_sha256": "bb40fa5d0fa44bf2ff8b2b5dd7085562b58557a69eaa08b6bb5a4fc94252af88",
+      "sha256": "bb40fa5d0fa44bf2ff8b2b5dd7085562b58557a69eaa08b6bb5a4fc94252af88",
+      "change": "Exact bytes"
+    },
+    {
+      "role": "documents",
+      "path": "components/documents/patches/body-ink-row-width.patch",
+      "source_commit": "c17b03a6d663673bd742d19a9b0bdebd8a6e3f8e",
+      "source_path": "patches/body-ink-row-width.patch",
+      "source_sha256": "eb2f813e91bbe32c0e3b01b5e9c0a92e51cf3d6ee8f510e8add3e1e521e12325",
+      "sha256": "eb2f813e91bbe32c0e3b01b5e9c0a92e51cf3d6ee8f510e8add3e1e521e12325",
+      "change": "Exact bytes"
+    },
+    {
+      "role": "documents",
+      "path": "components/documents/patches/hwpx-computed-layout.patch",
+      "source_commit": "c17b03a6d663673bd742d19a9b0bdebd8a6e3f8e",
+      "source_path": "patches/hwpx-computed-layout.patch",
+      "source_sha256": "354289ad6579054f4e662b0b2c8b2e8bb33c5a3e9cc272f17cf7828245656441",
+      "sha256": "354289ad6579054f4e662b0b2c8b2e8bb33c5a3e9cc272f17cf7828245656441",
+      "change": "Exact bytes"
+    }
+  ]
+}

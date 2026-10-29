@@ -1,0 +1,10 @@
+export type PreservationReport = {package_id:string;native_counts?:Record<string,number>;counts:Record<string,number>;archive_integrity:string;content_completeness:string;can_import:boolean;diagnostics:{code:string;severity:string;message:string;occurrences?:number}[];diagnostics_omitted:number;rendering_assessed:boolean};
+export type BrowserPackage = {manifest:any;manifestBytes:Uint8Array<ArrayBuffer>;report:PreservationReport;objects:{sha256:string;bytes:number}[];entries:Map<string,Blob>};
+export const WEB_PRESERVATION_BUDGETS:Readonly<Record<string,number>>;
+export function readPackageFiles(files:File[]):Promise<Map<string,Blob>>;
+export function readPackageTar(file:Blob):Promise<Map<string,Blob>>;
+export function inspectBrowserPackage(entries:Map<string,Blob>,onProgress?:(text:string)=>void):Promise<BrowserPackage>;
+export function packageTar(entries:Map<string,Blob>):Blob;
+export function bytesToBase64(bytes:Uint8Array):string;
+export function base64ToBytes(value:string):Uint8Array<ArrayBuffer>;
+export function demoPackage():Promise<Map<string,Blob>>;
