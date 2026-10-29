@@ -5,3 +5,5 @@ dist/
 .openai/hosting.json
 .env*
 *.tsbuildinfo
+.next/
+.vinext/

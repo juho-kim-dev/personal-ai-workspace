@@ -8,24 +8,8 @@
       "source_commit": "df2dc031c48e25a4018b0bf1c9f302ec0d74665a",
       "source_path": ".gitignore",
       "source_sha256": "ef8243bf7fcefe5f87cab77a43445b011805e3c22c85c6f40317f1a8306db850",
-      "sha256": "9a4b8472562a1c929c5607e4b3a385b78bdb78dcfc870c528b21232ef115ca8c",
+      "sha256": "6b3d510d50d79236226085d95ab1809ead82ba5b85eab319586c7575f564b630",
       "status": "adapted"
-    },
-    {
-      "path": ".next/types/routes.d.ts",
-      "source_commit": null,
-      "source_path": null,
-      "source_sha256": null,
-      "sha256": "4bde34d1655fa4567b2abcdb8b2979dcb520c9a96f07a8618a28a327609028e8",
-      "status": "new"
-    },
-    {
-      "path": ".vinext/dev/lock.json",
-      "source_commit": null,
-      "source_path": null,
-      "source_sha256": null,
-      "sha256": "7c2d4ccbe77e7e2ff0d1efbb9195eb3d8e794c92a11f31a80471857350bd3894",
-      "status": "new"
     },
     {
       "path": "README.md",

@@ -15,7 +15,7 @@ const forbidden = [
   /^(?:\.local|node_modules|dist|\.wrangler)\//,
   /^\.openai\/hosting\.json$/,
   /^\.github\/workflows\//,
-  /(?:^|\/)(?:node_modules|dist|\.wrangler|\.sites-runtime)\//,
+  /(?:^|\/)(?:node_modules|dist|\.wrangler|\.sites-runtime|\.next|\.vinext)\//,
   /(?:^|\/)\.openai\/hosting\.json$/,
 ];
 const privateMarkers = [
@@ -33,6 +33,7 @@ for (const file of files) {
   if (info.size > 20 * 1024 * 1024) errors.push(`Oversized file: ${file}`);
   if (/\.(?:wasm|webm|png|jpg)$/.test(file)) continue;
   const text = await readFile(file, "utf8");
+  if (file.startsWith("sites/wiki/") && text.includes("/" + "Users/")) errors.push(`Local path in Wiki: ${file}`);
   for (const rule of privateMarkers)
     if (rule.test(text)) errors.push(`Private marker: ${file}`);
 }
