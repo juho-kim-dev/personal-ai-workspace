@@ -1,3 +1,5 @@
+> **Current direction, 2026-10-29:** [Actual sites with a Wiki hub](PUBLIC-DIRECTION.md) supersede the six-role prototype and fixed-six/no-hub plan. The earlier evidence below remains limited to its original prototype/module scope. For the actual Wiki see [Wiki validation](../sites/wiki/VALIDATION.md).
+
 # Source selection and attribution
 
 The maintainer selected source from the canonical commits of six independently developed applications. No private working tree, history, database, personal note, conversation export, cache, account credential or original third-party site asset was copied wholesale.

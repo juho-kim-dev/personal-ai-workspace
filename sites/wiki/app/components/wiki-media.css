@@ -1,0 +1,33 @@
+.wiki-media {
+    min-width: min(200px, 100%);
+    margin-block: 12px;
+    color: var(--text);
+    overflow-wrap: anywhere;
+    text-align: start;
+}
+
+.wiki-media .wiki-media-frame {
+    position: relative;
+    width: 100%;
+    min-height: 0;
+    overflow: hidden;
+    background: var(--soft);
+    box-shadow: inset 0 0 0 1px var(--line);
+    box-sizing: border-box;
+}
+
+.wiki-media .wiki-media-frame > iframe {
+    position: absolute;
+    inset: 0;
+    display: block;
+    width: 100%;
+    height: 100%;
+    border: 0;
+}
+
+.wiki-media[data-align="center"] { margin-inline: auto; }
+.wiki-media[data-align="right"] { margin-left: auto; margin-right: 0; }
+.wiki-media[data-align="left"] { margin-left: 0; margin-right: auto; }
+.markup .wiki-figure-image .wiki-media { width: 100% !important; min-width: 0; margin: 0; }
+.markup .wiki-figure[data-table-align="center"] { margin-inline: auto; }
+.markup .wiki-figure[data-table-align="right"]:not(.wiki-figure-float) { margin-left: auto; }

@@ -1,33 +1,12 @@
-# Secondary-account handoff: six independent Sites
+# Public application deployment handoff
 
-**Independent deployment packages are not ready; no Site is deployed by this change.** The previous single-site plan is superseded. There will be six independent Sites, with no landing/guide Site. README will link directly to actual demo URLs.
+Follow [PUBLIC-DIRECTION.md](PUBLIC-DIRECTION.md). The old combined prototype package is disabled and must not be deployed. The first actual application is [PAW Wiki](../sites/wiki/README.md), a dynamic Vinext/Workers application with D1 and R2, not a static export.
 
-## Superseded package
+1. Review the local Wiki and its source manifest. Confirm only fresh starter/help data, no private endpoints or deployed identity.
+2. Verify the connected Sites owner is the intended secondary account. Existing private Site IDs must never be reused.
+3. Create a separate Wiki site and fresh storage only in the authorized account. Put its returned identity into the ignored hosting manifest while preserving DB/BUCKET and MCP requirements; do not invent an ID.
+4. Preserve server auth and determine public visitor read/edit isolation explicitly. This original owner-oriented app is not automatically a safe shared anonymous editor. Do not disable auth to make the demo visible.
+5. Build/package the actual Wiki with the current supported Sites workflow, then verify hosted navigation, editing policy, storage, MCP and privacy. Record actual URL/version/commit.
+6. Repeat for each selected actual application and put confirmed public URLs into the Wiki hub.
 
-`npm run build` currently builds the combined prototype. `npm run package:sites` intentionally stops instead of packaging it. Previously generated `.local/sites-ready/` and transfer ZIPs are obsolete and must not be uploaded. `sites/hosting.template.json` is only a neutral reference, not a complete six-site configuration.
-
-## Preparation and publication
-
-1. Give every demo a direct entry, independent state and self-contained output. It must work while the other five are absent.
-2. Produce one transfer directory/manifest per demo, including only required assets and notices. Keep document WASM with the document demo and the Node MCP process outside browser bundles.
-3. Run behavior, build, provenance/privacy and isolated browser checks. Record actual results; combined-prototype checks do not establish independent-site acceptance.
-4. In the secondary account's session, confirm the Sites connection belongs to that account and follow its installed Sites skill. GitHub login and local folder do not select the Sites account. Do not substitute the main account connector.
-5. Create six Sites with functional names, each with its own deployment workspace, returned Site ID and output directory. No guide Site or reused private Site ID. Keep credentials and account identities out of this repo.
-6. Follow the installed skill's supported packaging/publication flow for each Site. Only record deployment after terminal success. Inspect each returned URL against the owner's naming constraint before adding README links.
-
-## Acceptance and deployment record
-
-All rows are pending. Populate actual URLs/revisions only from confirmed results.
-
-| Site | Required behavior | URL / deployed source / verification |
-| --- | --- | --- |
-| Conversation archive | Search, context, fixed links, unknown-revision rejection | Pending |
-| Notes workspace | Editing, graph, canvas and unsaved-draft recovery | Pending |
-| Knowledge & reports | Source observations leave reports unchanged; review/apply; stale rejection | Pending |
-| Document editing | Body/table edits, WASM render, HWPX download/reopen, standalone fixture | Pending |
-| Reference boards | Selections, boards and notes persist independently | Pending |
-| Media library | Authored annotations, video seek to 2 seconds, image 2 navigation | Pending |
-
-For each Site verify direct load/reload, desktop/narrow layouts, independent storage, no private-domain requests and public access under the intended account. Test media byte ranges and WASM serving on the actual host. Missing optional cross-site destinations must not prevent standalone use.
-
-Source delivery, main adoption, package readiness and deployment are separate states. This correction updates scope and records; it does not complete six-site implementation or publication.
+This task prepares a local preview and GitHub record only. No hosted deployment, public URL, external access change or secondary-account verification is claimed.

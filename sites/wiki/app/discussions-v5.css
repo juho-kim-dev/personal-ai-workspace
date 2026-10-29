@@ -1,0 +1,4 @@
+.discussion-controls,.discussion-compose-tabs,.recent-discussions nav{display:flex;flex-wrap:wrap;gap:.65rem;align-items:center;margin-block:1rem}
+.recent-discussion-list{list-style:none;padding:0}.recent-discussion-list li{padding:1rem 0;border-bottom:1px solid #8885}.recent-discussion-list p{margin:.4rem 0}
+.discussion-excerpt,.discussion-raw{white-space:pre-wrap;overflow-wrap:anywhere}.discussion-raw,.discussion-preview{padding:1rem;border:1px solid #8885;border-radius:.3rem;max-width:100%;overflow:auto}
+.discussion-compose-tabs [aria-pressed=true]{font-weight:700;text-decoration:underline}.discussions [hidden]{display:none}.recent-discussions input{max-width:100%}

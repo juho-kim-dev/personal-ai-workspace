@@ -1,0 +1,52 @@
+.wiki-settings { margin-top:20px; }
+.settings-intro { border-bottom:1px solid var(--line); padding:0 0 18px; margin-bottom:24px; }
+.settings-intro h2 { display:flex; align-items:center; gap:8px; font-size:16px; margin:0 0 6px; }
+.settings-intro p { margin:0; color:var(--muted); font-size:13px; }
+.settings-layout { display:block; }
+.settings-index { display:flex; flex-wrap:wrap; gap:4px; border-bottom:1px solid var(--line); margin-bottom:24px; }
+.settings-index button { border:0; border-radius:0; border-bottom:3px solid transparent; background:transparent; min-height:42px; padding:9px 18px; text-align:left; color:var(--muted); font-size:14px; }
+.settings-index button:hover,.settings-index button:focus-visible { background:var(--soft); color:var(--link); }
+.settings-index button[aria-selected=true] { color:var(--text); border-bottom-color:var(--link); background:var(--soft); font-weight:700; }
+.settings-sections { min-width:0; max-width:800px; }
+.settings-group { margin-bottom:24px; }
+.settings-group[hidden] { display:none; }
+.wiki-settings .settings-block { margin:0 0 24px; padding:22px; border:1px solid var(--line); border-radius:4px; background:var(--panel); }
+.wiki-settings .settings-block h2 { font-size:19px; line-height:1.4; margin:0 0 14px; }
+.wiki-settings .settings-block p { max-width:68ch; font-size:14px; line-height:1.75; margin:8px 0 14px; word-break:keep-all; overflow-wrap:anywhere; }
+.wiki-settings h3 { font-size:15px; font-weight:700; line-height:1.5; margin:0 0 10px; }
+.wiki-settings h4 { font-size:14px; margin:14px 0 8px; }
+.wiki-settings .settings-operation,.wiki-settings .settings-subsection { padding:16px 0 0; margin-top:18px; border:0; border-top:1px solid var(--line); }
+.wiki-settings .settings-operation:first-of-type { margin-top:16px; }
+.wiki-settings .mcp-check .settings-operation { border-top:0; margin-top:0; padding-top:0; }
+.wiki-settings .settings-subsection { background:var(--soft); border:1px solid var(--line); border-radius:3px; padding:16px; }
+.wiki-settings .settings-file { display:block; font-size:13px; font-weight:600; margin:0 0 12px; }
+.wiki-settings .settings-file input[type=file] { display:block; width:100%; min-width:0; max-width:100%; padding:8px; margin:6px 0 0; background:var(--soft); font-size:13px; font-weight:400; }
+.wiki-settings input[type=file]::file-selector-button { border:1px solid var(--line); border-radius:3px; padding:6px 10px; margin-right:10px; background:var(--panel); color:var(--text); cursor:pointer; }
+.settings-file-grid { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:16px; }
+.wiki-settings .preservation-actions { margin:10px 0 0; gap:8px; }
+.wiki-settings button { max-width:100%; white-space:normal; overflow-wrap:anywhere; font-size:13px; }
+.wiki-settings button:disabled { cursor:not-allowed; }
+.wiki-settings .settings-block p[role=status] { padding:10px 12px; border:1px solid var(--line); border-left:3px solid var(--link); background:var(--soft); font-size:13px; font-weight:500; }
+.wiki-settings .settings-result { border-top:1px solid var(--line); padding-top:14px; margin-top:18px; }
+.wiki-settings .settings-result code { overflow-wrap:anywhere; }
+.wiki-settings .settings-result li { padding:6px 0; font-size:13px; border-bottom:1px solid var(--line); overflow-wrap:anywhere; }
+.wiki-settings .backup-counts { display:grid; grid-template-columns:repeat(auto-fit,minmax(90px,1fr)); gap:1px; border:1px solid var(--line); background:var(--line); margin:14px 0; }
+.wiki-settings .backup-counts div { min-width:0; padding:8px 12px; background:var(--soft); }
+.wiki-settings .backup-counts dt { font-size:12px; color:var(--muted); }
+.wiki-settings .backup-counts dd { font-size:17px; margin:2px 0 0; font-variant-numeric:tabular-nums; }
+.wiki-settings .preservation-packages:empty { display:none; }
+.wiki-settings .settings-block > a { display:inline-flex; align-items:center; gap:6px; font-size:14px; }
+.wiki-settings .wiki-accent-settings,.wiki-settings .reading-preview-settings { margin:20px 0 0; background:var(--panel); }
+.wiki-settings .wiki-accent-options { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); }
+.wiki-settings .wiki-accent-option { min-width:0; padding:9px 10px; }
+.wiki-settings .reading-preview-settings label { display:flex; align-items:center; gap:8px; margin:10px 0; }
+@media(max-width:650px) {
+ .settings-index { gap:0; }
+ .settings-index button { padding:8px 10px; }
+ .settings-file-grid,.wiki-settings .wiki-accent-options { grid-template-columns:1fr; }
+ .settings-file-grid { gap:0; }
+ .wiki-settings .settings-block { padding:16px; margin-bottom:16px; }
+ .wiki-settings .settings-block h2 { font-size:18px; }
+ .wiki-settings .settings-subsection { padding:12px; }
+ .settings-intro { margin-bottom:18px; }
+}

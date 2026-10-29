@@ -1,3 +1,5 @@
+> **Current direction, 2026-10-29:** [Actual sites with a Wiki hub](PUBLIC-DIRECTION.md) supersede the six-role prototype and fixed-six/no-hub plan. The earlier evidence below remains limited to its original prototype/module scope. For the actual Wiki see [Wiki validation](../sites/wiki/VALIDATION.md).
+
 # Historical combined-prototype validation — 2026-10-29
 
 The combined presentation below was superseded by the decision to build six independent demo websites with no guide site. These checks and screenshots describe that earlier prototype only. They do not verify independent entries, storage, outputs or deployments. Those checks remain pending. The old transfer package is obsolete; see `DEPLOY-SITES.md`.

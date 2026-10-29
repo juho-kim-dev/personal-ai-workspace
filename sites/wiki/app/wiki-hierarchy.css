@@ -1,0 +1,18 @@
+.wiki-hierarchy { margin: .5rem 0 1rem; font-size: 13px; min-width: 0; overflow-wrap: anywhere; color: var(--muted); }
+.wiki-hierarchy-ancestors { display: flex; flex-wrap: wrap; align-items: baseline; gap: .25rem .5rem; }
+.wiki-hierarchy ol, .wiki-hierarchy ul { margin: 0; padding: 0; list-style: none; }
+.wiki-hierarchy-ancestors ol { display: flex; flex-wrap: wrap; gap: .25rem .5rem; }
+.wiki-hierarchy-ancestors li + li::before { content: '/'; margin-right: .5rem; opacity: .65; }
+.wiki-hierarchy-children { display: flex; flex-wrap: wrap; gap: .35rem 1.25rem; }
+.wiki-hierarchy-children li { display: flex; flex-wrap: wrap; align-items: baseline; gap: .4rem; min-width: 0; max-width: 100%; }
+.wiki-hierarchy a { text-decoration: underline; text-underline-offset: .15em; }
+.wiki-hierarchy a:focus-visible, .wiki-hierarchy button:focus-visible { outline: 2px solid currentColor; outline-offset: 3px; }
+.wiki-hierarchy-missing { text-decoration-style: dashed !important; }
+.wiki-hierarchy-count { font-size: .8rem; }
+.wiki-hierarchy p { margin: .25rem 0 0; }
+.wiki-hierarchy-subpages { margin-top: .35rem; }
+.wiki-hierarchy-subpages > button { margin-top: .35rem; font-size: inherit; }
+@media (max-width: 600px) {
+    .wiki-hierarchy-children { flex-direction: column; gap: .15rem; }
+    .wiki-hierarchy a { display: inline-block; padding-block: .25rem; }
+}

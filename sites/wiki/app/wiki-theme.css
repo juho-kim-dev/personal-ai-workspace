@@ -1,0 +1,162 @@
+/* Import after globals.css. Content-link tokens intentionally stay inherited. */
+:root[data-accent="green"] {
+    --teal: #00a495;
+    --accent-solid: #00756e;
+    --teal-dark: #00756e;
+    --focus: #00756e;
+}
+:root[data-accent="charcoal"] {
+    --teal: #42464d;
+    --accent-solid: #34383f;
+    --teal-dark: #34383f;
+    --focus: #42464d;
+}
+:root[data-accent="slate-navy"] {
+    --teal: #4a5b70;
+    --accent-solid: #35465c;
+    --teal-dark: #35465c;
+    --focus: #4a5b70;
+}
+:root:is(.dark, [data-theme="dark"])[data-accent="green"] {
+    --teal: #008f87;
+    --accent-solid: #00756e;
+    --teal-dark: #65d0c8;
+    --focus: #65d0c8;
+}
+:root:is(.dark, [data-theme="dark"])[data-accent="charcoal"] {
+    --teal: #42464d;
+    --accent-solid: #34383f;
+    --teal-dark: #c4c9d0;
+    --focus: #c4c9d0;
+}
+:root:is(.dark, [data-theme="dark"])[data-accent="slate-navy"] {
+    --teal: #4a5b70;
+    --accent-solid: #35465c;
+    --teal-dark: #b5c7df;
+    --focus: #b5c7df;
+}
+
+.wiki-accent-settings { min-width: 0; margin: 20px 0; padding: 0; border: 0; }
+.wiki-accent-settings legend { padding: 0; font-size: 16px; font-weight: 650; }
+.wiki-accent-settings > p { margin: 8px 0 12px; font-size: 13px; line-height: 1.6; color: var(--text); }
+.wiki-accent-options { display: flex; flex-wrap: wrap; gap: 8px; }
+.wiki-accent-options > .wiki-accent-option {
+    display: inline-flex; align-items: center; gap: 8px;
+    min-height: 44px; max-width: 100%; margin: 0; padding: 8px 10px;
+    border: 1px solid var(--line); border-radius: 6px;
+    background: var(--panel); color: var(--text); font-size: 13px; cursor: pointer;
+}
+.wiki-accent-option:has(input:checked) { border-color: var(--teal-dark); background: var(--soft); }
+.wiki-accent-option > input[type="radio"] { width: 16px; height: 16px; min-width: 16px; margin: 0; padding: 0; accent-color: var(--teal-dark); }
+.wiki-accent-option > input:focus-visible { outline: 2px solid var(--focus); outline-offset: 3px; }
+.wiki-accent-option small { display: block; margin-top: 2px; color: var(--text); font-size: 11px; line-height: 1.4; }
+.wiki-accent-swatch { flex: 0 0 20px; width: 20px; height: 20px; border: 1px solid var(--line); border-radius: 50%; }
+.wiki-accent-swatch[data-accent-swatch="green"] { background: #00a495; }
+.wiki-accent-swatch[data-accent-swatch="charcoal"] { background: #42464d; }
+.wiki-accent-swatch[data-accent-swatch="slate-navy"] { background: #4a5b70; }
+
+/* Group primary document actions; keep the overflow menu separate. */
+.article-heading .article-actions {
+    display: flex; flex: 0 1 auto; flex-wrap: wrap; align-items: center;
+    min-width: 0; max-width: 100%; gap: 6px 8px; margin-left: auto; padding-top: 0;
+    justify-content: flex-end;
+}
+.article-action-group { display: flex; min-width: 0; }
+.article-heading .article-action-group > :is(button, a),
+.article-heading .article-actions > .action-more > summary {
+    box-sizing: border-box; display: inline-flex; align-items: center; justify-content: center;
+    flex: 0 0 auto; min-width: var(--control-height);
+    height: var(--control-height); min-height: var(--control-height);
+    margin: 0; padding: 0 8px; gap: 4px;
+    border: 1px solid var(--line); border-radius: 3px;
+    background: var(--panel); color: var(--text);
+    font-family: inherit; font-size: 13px; font-weight: 400; line-height: 1;
+    white-space: nowrap; text-decoration: none; vertical-align: middle;
+    cursor: pointer; list-style: none;
+}
+.article-heading .article-action-group > :is(button, a) { border-radius: 0; }
+.article-heading .article-action-group > :is(button, a) + :is(button, a) { margin-left: -1px; }
+.article-heading .article-action-group > :first-child { border-radius: 3px 0 0 3px; }
+.article-heading .article-action-group > :last-child { border-radius: 0 3px 3px 0; }
+.article-heading .article-action-group > .article-icon-action,
+.article-heading .article-actions > .action-more > summary {
+    flex-basis: var(--control-height); width: var(--control-height);
+    min-width: var(--control-height); max-width: var(--control-height); padding: 0;
+}
+.article-heading .article-action-group > :is(button, a) > svg { flex-shrink: 0; }
+.article-heading .article-actions > .action-more {
+    flex: 0 0 var(--control-height); width: var(--control-height);
+    height: var(--control-height); min-height: var(--control-height); margin: 0;
+}
+.article-heading .article-actions > .action-more > .dropdown { top: calc(100% + 6px); right: 0; left: auto; }
+.article-heading .article-action-group > :is(button, a):is(:hover, .active, [aria-current]:not([aria-current="false"])),
+.article-heading .article-actions > .action-more > summary:hover {
+    color: var(--teal-dark); background: var(--soft);
+}
+.article-heading .article-action-group > button[aria-pressed="true"] { color: var(--teal-dark); background: var(--soft); }
+.article-heading .article-action-group > :is(button, a):focus-visible,
+.article-heading .article-actions > .action-more > summary:focus-visible {
+    position: relative; z-index: 1; outline: 2px solid var(--focus); outline-offset: 2px;
+}
+/* Keep keyboard focus visible on both the accent bar and its white controls. */
+.topbar :is(.brand, .main-nav > a, .main-nav > button, .nav-more > summary, .profile):focus-visible {
+    outline: 2px solid #fff; outline-offset: 2px;
+}
+.topbar :is(.random, .search > button, .search input):focus-visible {
+    outline: 2px solid var(--accent-solid); outline-offset: -3px;
+}
+.topbar .random:hover { background: #fff; }
+
+/* Filled controls need a dark fill even when active text uses a light ink. */
+.primary, .primary:hover,
+.article-panel .editor-tabs button[aria-selected="true"],
+.home-row-icon:hover, .new-document:hover {
+    background: var(--accent-solid); border-color: var(--accent-solid); color: #fff;
+}
+.editor-history-notice { margin: 8px 0; color: var(--text); font-size: 13px; }
+
+/* Give the title its own row before document actions can crowd it. */
+@media (max-width: 1023.98px) {
+    .article-heading { display: block; }
+    .article-heading .article-actions { width: 100%; margin-top: 12px; }
+}
+@media (max-width: 420px) {
+    .article-heading .article-actions { position: relative; }
+    .article-heading .article-actions > .action-more { position: static; }
+    .article-heading .article-actions > .action-more > .dropdown { right: 0; left: auto; max-width: 100%; }
+}
+
+/* A compact library wordmark for a private, linked document collection. */
+.topbar .brand {
+    min-height: var(--control-height); gap: 8px;
+    font-family: inherit;
+    font-weight: 700; letter-spacing: -.025em; line-height: 1.2;
+}
+.brand .brand-wordmark { display: inline-flex; align-items: baseline; }
+.brand .brand-number { margin-left: .055em; font-weight: 800; letter-spacing: -.045em; font-variant-numeric: tabular-nums; }
+.article-heading .article-title-link { color: inherit; text-decoration: none; }
+.article-heading .article-title-link:hover { text-decoration: underline; text-decoration-thickness: 1px; text-underline-offset: .16em; }
+
+:root[data-accent="wikipedia"] { --teal: #3366cc; --accent-solid: #3366cc; --teal-dark: #3366cc; --focus: #3366cc; }
+:root:is(.dark, [data-theme="dark"])[data-accent="wikipedia"] { --teal: #3366cc; --accent-solid: #3366cc; --teal-dark: #88a3e8; --focus: #88a3e8; }
+.wiki-accent-swatch[data-accent-swatch="wikipedia"] { background: #3366cc; }
+
+:root[data-accent="brand-blue"] { --teal: #103068; --accent-solid: #103068; --teal-dark: #103068; --focus: #103068; }
+:root:is(.dark, [data-theme="dark"])[data-accent="brand-blue"] { --teal: #103068; --accent-solid: #103068; --teal-dark: #a5c8f5; --focus: #a5c8f5; }
+.wiki-accent-swatch[data-accent-swatch="brand-blue"] { background: #103068; }
+:root[data-accent="blue-charcoal"] { --teal: #2b476c; --accent-solid: #2b476c; --teal-dark: #2b476c; --focus: #2b476c; }
+:root:is(.dark, [data-theme="dark"])[data-accent="blue-charcoal"] { --teal: #2b476c; --accent-solid: #2b476c; --teal-dark: #b9cbe2; --focus: #b9cbe2; }
+.wiki-accent-swatch[data-accent-swatch="blue-charcoal"] { background: #2b476c; }
+:root[data-accent="charcoal-navy"] { --teal: #2e3d53; --accent-solid: #2e3d53; --teal-dark: #2e3d53; --focus: #2e3d53; }
+:root:is(.dark, [data-theme="dark"])[data-accent="charcoal-navy"] { --teal: #2e3d53; --accent-solid: #2e3d53; --teal-dark: #bac7d9; --focus: #bac7d9; }
+.wiki-accent-swatch[data-accent-swatch="charcoal-navy"] { background: #2e3d53; }
+.brand-mark { flex-shrink: 0; }
+
+/* Default guide theme; legacy stored accent keys retain their exact palette. */
+:root:not([data-accent]), :root[data-accent="guide"] {
+    --teal: #30373d; --accent-solid: #2463b5; --teal-dark: #2463b5; --focus: #2463b5;
+}
+:root:is(.dark, [data-theme="dark"]):not([data-accent]), :root:is(.dark, [data-theme="dark"])[data-accent="guide"] {
+    --teal: #30373d; --accent-solid: #2463b5; --teal-dark: #a5c8f5; --focus: #a5c8f5;
+}
+.wiki-accent-swatch[data-accent-swatch="guide"] { background: linear-gradient(135deg,#30373d 50%,#2463b5 50%); }

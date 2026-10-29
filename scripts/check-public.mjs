@@ -15,6 +15,8 @@ const forbidden = [
   /^(?:\.local|node_modules|dist|\.wrangler)\//,
   /^\.openai\/hosting\.json$/,
   /^\.github\/workflows\//,
+  /(?:^|\/)(?:node_modules|dist|\.wrangler|\.sites-runtime)\//,
+  /(?:^|\/)\.openai\/hosting\.json$/,
 ];
 const privateMarkers = [
   new RegExp("ju" + "hile\\.chatgpt\\.site", "i"),
@@ -42,7 +44,12 @@ for (const entry of provenance.files) {
   if (hash !== entry.sha256)
     errors.push(`Provenance hash changed: ${entry.path}`);
 }
+const wiki = JSON.parse(await readFile("sites/wiki/source-manifest.json", "utf8"));
+for (const entry of wiki.files) {
+  const hash = createHash("sha256").update(await readFile("sites/wiki/" + entry.path)).digest("hex");
+  if (hash !== entry.sha256) errors.push(`Wiki source hash changed: ${entry.path}`);
+}
 assert.equal(errors.length, 0, errors.join("\n"));
 console.log(
-  `Public boundary passed: ${files.length} selected files; ${provenance.files.length} provenance hashes match. Heuristic scan, not a proof against every secret.`,
+  `Public boundary passed: ${files.length} selected files; ${provenance.files.length} reference and ${wiki.files.length} Wiki source hashes match. Heuristic scan, not a proof against every secret.`,
 );

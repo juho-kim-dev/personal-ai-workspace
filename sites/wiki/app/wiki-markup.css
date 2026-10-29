@@ -1,0 +1,262 @@
+/* Scoped additions to the shared shell styles. */
+.markup .wiki-section-body[hidden] { display: none !important; }
+.markup .section-label { min-width: 0; }
+.markup .section-title { flex-wrap: wrap; }
+.markup .section-title h2, .markup .section-title h3 { margin: 0; }
+.markup h4.section-title { font-size: 18px; }
+.markup h5.section-title { font-size: 16px; }
+.markup h6.section-title { font-size: 15px; }
+.markup .toc ol { list-style: none; }
+.markup .toc a { display: inline-flex; align-items: center; }
+.markup .wiki-section { min-width: 0; }
+/* End a float at the next section, not by clipping an enclosing document. */
+.markup .wiki-section, .markup .footnotes, .markup hr { clear: both; }
+.markup li > ul, .markup li > ol { margin-block: 4px; }
+.markup .wiki-file { display: inline-block; max-width: 100%; vertical-align: middle; }
+.markup .wiki-file img { display: block; max-width: 100%; height: auto; }
+.markup .wiki-attachment::before { content: '↧ '; }
+/* Scoped content inks stay distinct and readable over the pale panel header. */
+.markup { --link: var(--guide-blue); }
+:root:is(.dark, [data-theme="dark"]) .markup { --link: #98cbff; }
+.markup .missing { color: #b33340; }
+:root:is(.dark, [data-theme="dark"]) .markup .missing { color: #ff9aa4; }
+.markup .external-link { color: #876100; }
+:root:is(.dark, [data-theme="dark"]) .markup .external-link { color: #f2c75c; }
+.markup .wiki-external-icon { display: inline-flex; width: 1.05em; height: 1.05em; padding: 1px; margin-inline-start: .25em; border-radius: 2px; background: #d5a329; color: #202833; vertical-align: -.1em; white-space: nowrap; }
+.markup .wiki-external-icon svg { width: 100%; height: 100%; }
+.markup .wiki-link-hint {
+  position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px;
+  overflow: hidden; clip-path: inset(50%); white-space: nowrap; border: 0;
+}
+.markup pre { overflow: auto; tab-size: 4; }
+.markup pre code { padding: 0; }
+.markup .footnotes > ol { list-style: none; padding-inline-start: 0; }
+.markup .footnotes li { padding-block: 4px; scroll-margin-top: 80px; }
+.markup .wiki-note-ref { scroll-margin-top: 80px; }
+.markup .wiki-note-number { color: var(--muted); }
+.markup .wiki-note-backlinks { display: inline-flex; gap: 8px; margin-inline-start: 8px; }
+.markup .table-wrap { width: 100%; min-width: 0; max-width: 100%; overflow-x: auto; }
+.markup .wiki-table { width: 100%; color: var(--text); }
+.markup .wiki-table :is(th, td) { word-break: keep-all; overflow-wrap: anywhere; }
+/* Keep ordinary labels readable; long values may scroll within table-wrap. */
+.markup .wiki-table .wiki-table-first-column {
+  min-width: 7.5em;
+}
+.markup .wiki-table :is(.wiki-inline-style, a) { word-break: inherit; }
+
+/* Explicit source roles share one restrained family in every accent/theme. */
+.markup :is(.wiki-table-notice, .wiki-table-navbox) {
+  border: 1px solid var(--line); border-top: 2px solid var(--teal-dark);
+  background: var(--panel); margin-block: 4px;
+}
+.markup :is(.wiki-table-notice, .wiki-table-navbox) > tbody > tr > :is(th, td) {
+  padding: 5px 10px; line-height: 1.5; border: 0;
+}
+.markup .wiki-table-notice > tbody > tr:first-child > th,
+.markup .wiki-table-navbox > tbody > tr:first-child > th[scope="col"] {
+  background: color-mix(in srgb, var(--teal-dark) 9%, var(--panel));
+  color: var(--text); font-weight: 650;
+}
+.markup .wiki-table-navbox > tbody > tr + tr { border-top: 1px solid var(--line); }
+.markup .wiki-table-navbox > tbody > tr > th[scope="row"] {
+  width: 7.5em; min-width: 7.5em; max-width: 7.5em;
+  background: var(--soft); font-weight: 600;
+}
+.markup .wiki-table-notice { border-top-width: 1px; border-left: 4px solid var(--teal-dark); }
+.markup .wiki-table-notice > tbody > tr > :is(th, td) { padding: 11px 14px; }
+.markup .wiki-table-notice > tbody > tr:first-child > th { text-align: start; font-weight: 700; }
+@media print { .markup .wiki-section-body[hidden] { display: block !important; } }
+/* Includes keep their source's presentation; inspection belongs to document info. */
+.markup .wiki-include { margin-block: 12px; min-width: 0; }
+.markup .wiki-include-error, .markup .wiki-include-empty { color: var(--muted); }
+.markup .wiki-inline-style { overflow-wrap: anywhere; }
+.markup .wiki-named-anchor { scroll-margin-top: 80px; }
+.wiki-table-cell-block > .markup > :first-child { margin-top: 0; }
+.wiki-table-cell-block > .markup > :last-child { margin-bottom: 0; }
+.wiki-table-cell-block .folding { text-align: start; }
+
+/* One measurement boundary around the host. Neutral include/markup wrappers
+ * remain normal blocks so paragraphs can still wrap beside a sibling float.
+ * Each smaller block measures its own available width, not the viewport. */
+.wiki-layout-scope, .markup .folding, .wiki-table-cell-block, .markup .wiki-include.wiki-infobox {
+  container: wiki-content / inline-size;
+  min-width: 0;
+}
+.wiki-layout-scope { width: 100%; max-width: 100%; display: flow-root; }
+.markup .wiki-table-layout {
+  width: min(var(--wiki-table-width), 100%); max-width: 100%; min-width: 0;
+}
+.markup .wiki-table-layout[data-table-align="left"] { margin-inline: 0 auto; }
+.markup .wiki-table-layout[data-table-align="center"] { margin-inline: auto; }
+.markup .wiki-table-layout[data-table-align="right"] { margin-inline: auto 0; }
+/* Safe baseline for browsers without container queries and for narrow content.
+ * The whole opted-in include owns layout; its inner table stays width:100%. */
+.markup .wiki-infobox { float: none; width: 100%; margin-inline: 0; }
+.markup .wiki-table-infobox { border: 2px solid var(--teal-dark); }
+.markup .wiki-table-infobox > tbody > tr > :is(th, td) { padding: 3px 8px; line-height: 1.45; }
+.markup .wiki-table-infobox > tbody > tr:first-child > th {
+  background: var(--panel); color: var(--teal-dark); font-size: 15px; font-weight: 700; text-align: center;
+}
+.markup .wiki-table-infobox > tbody > tr:first-child > th a { color: inherit; }
+.markup .wiki-table-infobox th[scope="row"] { width: 6.5em; min-width: 6.5em; background: color-mix(in srgb, var(--teal-dark) 9%, var(--panel)); font-weight: 650; text-align: center; }
+.markup .toc { min-width: min(210px, 100%); overflow-wrap: anywhere; }
+.markup .toc a { max-width: 100%; }
+@container wiki-content (min-width: 48rem) {
+  .markup .wiki-infobox { width: min(var(--wiki-table-width), 100%); }
+  .markup .wiki-infobox-float[data-table-align="right"] {
+    float: right; clear: right;
+    width: min(var(--wiki-table-width), 45%);
+    margin: 0 0 1rem 1.25rem;
+  }
+}
+@media print {
+  .markup .wiki-infobox { float: none !important; width: 100% !important; margin-inline: 0 !important; }
+}
+
+/* Only validated color pairs reference these local variables. A single source
+ * color keeps its legacy inline value; no automatic recoloring is inferred. */
+.markup :is(.wiki-inline-style, .wiki-table, th, td) {
+  --wiki-color: var(--wiki-color-light);
+  --wiki-backgroundColor: var(--wiki-backgroundColor-light);
+  --wiki-borderColor: var(--wiki-borderColor-light);
+}
+:root:is(.dark, [data-theme="dark"]) .markup :is(.wiki-inline-style, .wiki-table, th, td) {
+  --wiki-color: var(--wiki-color-dark);
+  --wiki-backgroundColor: var(--wiki-backgroundColor-dark);
+  --wiki-borderColor: var(--wiki-borderColor-dark);
+}
+
+/* Reading width wins over authored percentages on a narrow viewport. Scroll is
+ * contained by the table region; a table never widens the document itself. */
+.markup .wiki-table:not(.wiki-table-notice):not(.wiki-table-navbox):not(.wiki-table-infobox) > tbody > tr > :is(th, td) { min-width: 9em; padding: 4px 8px; line-height: 1.5; }
+.markup .table-wrap:focus-visible { outline: 2px solid var(--focus); outline-offset: 2px; }
+.markup .toc { display: table; min-width: min(240px, 100%); max-width: 100%; padding: 10px 14px; margin: 14px 0 18px; background: var(--panel); border: 1px solid var(--line); border-radius: 3px; }
+.markup .toc-heading { display: flex; align-items: center; justify-content: space-between; gap: 32px; }
+.markup .toc-label { font-size: 15px; font-weight: 650; color: var(--text); }
+.markup .toc-heading button { border: 0; background: transparent; color: var(--link); font-size: 12px; min-height: 28px; padding: 2px 4px; }
+.markup .toc ol { columns: auto; margin-top: 6px; font-size: 14px; }
+.markup .toc li { margin: 2px 0; }
+@media (max-width:600px) { .markup .toc-heading button { min-height: 40px; } }
+@media print { .markup .toc ol[hidden] { display: block !important; } .markup .toc-heading button { display: none; } }
+.markup .wiki-table-notice { border-left-width: 2px; }
+.markup .wiki-table-notice > tbody > tr > :is(th, td) { padding: 7px 12px; }
+.markup .wiki-table-infobox { border-width: 1px; }
+.markup .folding { padding: 12px; margin: 8px 0; background: var(--panel); border: 1px solid var(--line); }
+.markup .folding-title { font-weight: 650; font-size: 14px; line-height: 1.6; }
+.markup .folding-controls { margin-top: 8px; display: flex; justify-content: flex-start; }
+.markup .folding-controls button { font-size: 12px; min-height: 32px; color: var(--link); }
+@media print { .markup .folding > [hidden] { display: block !important; } .folding-controls { display: none !important; } }
+.markup .wiki-table-cell-block { min-width: 15em; }
+
+/* Reference boxes use the same quiet framing as the contents panel. */
+.markup .wiki-table-notice { background: var(--soft); border-left-color: var(--teal-dark); }
+.markup .wiki-table-notice > tbody > tr:first-child > th { background: transparent; font-size: 14px; }
+.markup .wiki-table-infobox { background: var(--panel); border-color: var(--line); }
+.markup .wiki-table-infobox > tbody > tr:first-child > th { padding: 8px 10px; }
+.markup .wiki-table-infobox th[scope="row"] { text-align: center; background: var(--soft); font-size: 13px; }
+.markup .wiki-table-infobox .wiki-file { margin: 2px auto; }
+
+/* Shared guide navigation, rendered from the same wiki template on every page. */
+.markup .wiki-table-navbox > tbody > tr:first-child > th[scope="col"] { background: var(--panel); color: var(--teal-dark); text-align: start; border-bottom: 2px solid var(--teal-dark); }
+.markup .wiki-table-navbox > tbody > tr:first-child > th[scope="col"] a { color: inherit; }
+.markup .wiki-table-navbox a[aria-current="page"] { color: var(--text); font-weight: 750; text-decoration: underline; text-underline-offset: 3px; }
+.markup .wiki-table-navbox > tbody > tr:first-child > th[scope="col"] a[aria-current="page"] { color: inherit; }
+.markup .wiki-table-navbox > tbody > tr:last-child > td[colspan] { background: var(--soft); font-size: 13px; }
+@media(max-width:600px) { .markup .wiki-table-navbox > tbody > tr > th[scope="row"] { width: 6.5em; min-width: 6.5em; max-width: 6.5em; } .markup .wiki-table-navbox > tbody > tr > :is(th,td) { padding: 9px 8px; font-size: 13px; } }
+
+/* Guidebook flow: only an explicit infobox or figure may share a line with prose. */
+.markup .wiki-include:not(.wiki-infobox):not(.wiki-figure),
+.markup .table-wrap:has(> .wiki-table-notice, > .wiki-table-navbox),
+.markup .toc { clear: both; }
+.markup .table-wrap:has(> .wiki-table-notice) { width: 100%; }
+.markup .table-wrap:has(> .wiki-table-navbox) { width: 100%; max-width: 100%; margin-inline: auto; }
+.markup .wiki-table-navbox { width: 100%; max-width: 100%; border: 0; border-block: 1px solid var(--line); }
+.markup .wiki-table-navbox > tbody > tr:last-child > td[colspan] { background: transparent; }
+.markup .wiki-table-notice { border: 0; border-left: 2px solid var(--teal-dark); }
+.markup .wiki-table-notice > tbody > tr > :is(th, td) { padding: 5px 12px; }
+.markup .wiki-table-notice > tbody > tr:first-child > :is(th, td) { padding-top: 8px; }
+.markup .wiki-table-notice > tbody > tr:last-child > :is(th, td) { padding-bottom: 8px; }
+.markup table.wiki-table-notice > tbody > tr > :is(th, td).wiki-notice-media { width: 68px; min-width: 68px; padding: 12px; vertical-align: middle; text-align: center; }
+.markup .wiki-notice-media .wiki-file { width: 44px; margin: 0; }
+.markup .wiki-notice-media img { width: 100%; max-height: 64px; object-fit: contain; }
+@media(max-width:600px) {
+  .markup .wiki-table-navbox > tbody > tr > :is(th,td) { padding: 7px 8px; }
+}
+
+/* Compact infobox variants; authored cell alignment/colors still take priority. */
+.markup .wiki-table-infobox th[scope="row"] { width: 6.5em; min-width: 6.5em; }
+.markup .wiki-table-infobox > tbody > tr:first-child > th { padding: 5px 8px; }
+.markup .wiki-table-infobox .wiki-table-section { padding: 3px 8px; text-align: center; background: var(--soft); font-size: 13px; font-weight: 700; }
+.markup .wiki-table-infobox .wiki-table-caption { padding: 2px 8px 5px; font-size: 12px; line-height: 1.45; color: var(--muted); }
+.markup .wiki-table-infobox[data-table-style="plain"] > tbody > tr > :is(th,td) { border: 0; background: transparent; }
+.markup .wiki-table-infobox[data-table-style="plain"] .wiki-table-section { border-block: 1px solid var(--line); color: var(--teal-dark); }
+.markup .wiki-table-infobox[data-table-style="grid"] > tbody > tr:first-child > th,
+.markup .wiki-table-infobox[data-table-style="grid"] .wiki-table-section { background: var(--accent-solid,var(--teal)); color: white; }
+.markup .wiki-table-infobox .wiki-table-section a { color: inherit; }
+/* A subsection can continue beside its parent's infobox. Major sections,
+ * notices, navigation and the TOC remain independent full-width boundaries. */
+.markup .wiki-section .wiki-section { clear: none; }
+.markup .wiki-figure { float: none; width: min(var(--wiki-table-width),100%); max-width: 100%; margin: 10px 0; }
+.markup .wiki-figure-wrap figure { margin: 0; padding: 5px; background: var(--soft); border: 1px solid var(--line); }
+.markup .wiki-figure-image { text-align: center; }
+.markup .wiki-figure-image .wiki-file { margin: 0 auto; }
+.markup .wiki-figure-wrap figcaption { padding: 5px 2px 1px; font-size: 12.5px; line-height: 1.5; overflow-wrap: anywhere; }
+@container wiki-content (min-width: 48rem) {
+ .markup .wiki-figure-float[data-table-align="left"] { float: left; clear: left; width: min(var(--wiki-table-width),45%); margin: 4px 18px 10px 0; }
+ .markup .wiki-figure-float[data-table-align="right"] { float: right; clear: right; width: min(var(--wiki-table-width),45%); margin: 4px 0 10px 18px; }
+}
+@media print { .markup .wiki-figure { float: none !important; margin-inline: 0 !important; } }
+
+/* A1 is the default navigation family; columns is the opt-in B2 layout. */
+.markup { --nav-label-bg: var(--guide-charcoal); --nav-label-ink: var(--guide-paper); --nav-rule: var(--guide-gold); }
+.markup .wiki-table-navbox { border-top: 2px solid var(--nav-rule); background: var(--soft); font-size: 14px; }
+.markup .wiki-table-navbox > tbody > tr > :is(th,td) { padding: 5px 12px; line-height: 1.65; }
+.markup .wiki-table-navbox > tbody > tr > th[scope="row"] {
+  width: 8em; min-width: 6em; max-width: 10em; text-align: left;
+  background: var(--nav-label-bg); color: var(--nav-label-ink); font-size: 12px;
+  border-right: 1px solid var(--nav-rule);
+}
+.markup .wiki-table-navbox > tbody > tr > th[scope="row"] a,
+.markup .wiki-nav-columns dt a { color: inherit; }
+.markup .wiki-table-navbox > tbody > tr:first-child > th[scope="col"] { border-bottom: 1px solid var(--line); }
+.markup .wiki-nav-columns { clear: both; width: min(var(--wiki-nav-width, 100%), 100%); margin: 16px auto; font-size: 14px; line-height: 1.65; }
+.markup .wiki-nav-columns > dl { display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); gap: 12px; margin: 0; }
+.markup .wiki-nav-group { display: grid; grid-template-columns: 96px minmax(0,1fr); border: 1px solid var(--line); border-top: 2px solid var(--nav-rule); background: var(--soft); min-width: 0; }
+.markup .wiki-nav-group:first-child, .markup .wiki-nav-group:last-child,
+.markup .wiki-nav-group:has(> dd a:nth-of-type(6)) { grid-column: 1 / -1; }
+.markup .wiki-nav-group > :is(dt,dd) { margin: 0; padding: 7px 11px; min-width: 0; overflow-wrap: anywhere; word-break: keep-all; }
+.markup .wiki-nav-group > dt { display: flex; align-items: center; flex-wrap: wrap; background: var(--nav-label-bg); color: var(--nav-label-ink); font-size: 12px; font-weight: 650; border-right: 1px solid var(--nav-rule); }
+.markup .wiki-nav-columns a[aria-current="page"] { font-weight: 750; text-decoration: underline; text-underline-offset: 3px; }
+@media(max-width:600px) {
+  .markup .wiki-table-navbox { font-size: 13px; }
+  .markup .wiki-table-navbox > tbody > tr > :is(th,td) { padding: 5px 8px; }
+  .markup .wiki-table-navbox > tbody > tr > th[scope="row"] { min-width: 5em; max-width: 7em; font-size: 11px; }
+  .markup .wiki-nav-columns { font-size: 13px; }
+  .markup .wiki-nav-columns > dl { grid-template-columns: minmax(0,1fr); gap: 8px; }
+  .markup .wiki-nav-group { grid-template-columns: 88px minmax(0,1fr); }
+}
+
+.markup .wiki-nav-columns[data-table-align="left"] { margin-inline: 0 auto; }
+.markup .wiki-nav-columns[data-table-align="right"] { margin-inline: auto 0; }
+
+/* Reading aid: only present once the document's own TOC has passed above. */
+.wiki-floating-toc { position: fixed; z-index: 45; top: 62px; left: 12px; color: var(--text); }
+.wiki-floating-toc > button { display: flex; align-items: center; gap: 7px; padding: 8px 11px; background: var(--panel, #fff); border: 1px solid var(--line, #cbd0d5); border-radius: 4px; box-shadow: 0 2px 6px #0002; }
+.wiki-floating-toc nav { width: min(330px, calc(100vw - 24px)); max-height: calc(100dvh - 120px); overflow-y: auto; margin-top: 6px; padding: 12px; background: var(--panel, #fff); border: 1px solid var(--line, #cbd0d5); border-radius: 4px; box-shadow: 0 6px 24px #0003; }
+.floating-toc-heading { display:flex; align-items:center; justify-content:space-between; margin-bottom:8px; }
+.floating-toc-heading button { display:flex; padding:5px; }
+.wiki-floating-toc ol { list-style:none; padding:0; margin:0; }
+.wiki-floating-toc li { margin:0; }
+.wiki-floating-toc a { display:block; padding:7px 8px; line-height:1.45; overflow-wrap:anywhere; border-radius:3px; }
+.wiki-floating-toc a[aria-current="location"] { background:var(--soft); font-weight:700; box-shadow:inset 3px 0 var(--teal-dark); }
+.wiki-floating-toc a:focus-visible, .wiki-floating-toc button:focus-visible { outline:2px solid var(--teal-dark); outline-offset:2px; }
+
+/* Body lists retain visible markers and hanging indentation; navigation is excluded. */
+.markup ul.wiki-body-list { list-style: disc outside; padding-inline-start: 1.5em; }
+.markup ol.wiki-body-list { list-style: decimal outside; padding-inline-start: 1.5em; }
+.markup .wiki-body-list > li { display: list-item; }
+
+.markup ol.wiki-body-list[type="a"] { list-style-type: lower-alpha; }
+.markup ol.wiki-body-list[type="A"] { list-style-type: upper-alpha; }
+.markup ol.wiki-body-list[type="i"] { list-style-type: lower-roman; }
+.markup ol.wiki-body-list[type="I"] { list-style-type: upper-roman; }

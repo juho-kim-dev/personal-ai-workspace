@@ -1,3 +1,5 @@
+> **Current direction, 2026-10-29:** [Actual sites with a Wiki hub](PUBLIC-DIRECTION.md) supersede the six-role prototype and fixed-six/no-hub plan. The earlier evidence below remains limited to its original prototype/module scope. For the actual Wiki see [Wiki validation](../sites/wiki/VALIDATION.md).
+
 # Claims and reproducible evidence
 
 Use this document to keep project/CV descriptions proportional to what a reader can inspect. AI assistance was used in development; third-party engine authorship is attributed separately.
