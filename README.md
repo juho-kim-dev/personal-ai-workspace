@@ -1,62 +1,75 @@
-# Personal AI Workspace (PAW)
+# PAW — Personal AI Workflow
 
-**Personal tools for keeping conversations, knowledge and documents useful to both people and AI.**
+A modular personal AI workspace for keeping conversations, notes and documents useful beyond the moment they were made.
 
-[한국어](README.ko.md) · [Author](https://github.com/juho-kim-dev)
+[한국어](README.ko.md) · [Design notes](docs/DESIGN.md) · [Author](https://github.com/juho-kim-dev)
 
-PAW is a collection of independently developed web applications. It addresses a recurring problem in my own work: useful material is scattered across AI conversations, notes and files, and becomes difficult to find or safely edit later.
+I started PAW because useful material was scattered across chats, notes, browser tabs and files. Finding an answer again often meant losing its context; moving it into a document meant making another copy to maintain.
 
-I develop these tools with AI assistance, working on application behavior, data preservation, tool interfaces and verification. Each application retains its own data model and storage; PAW is not a single shared database or a finished end-to-end autonomous platform.
+PAW brings that work into **Spaces**: specialist web applications that can stand on their own. The aim is to carry a source, its context and its revision through the work, from a conversation to a note, from a note to a wiki page, and from a page to a finished document.
 
-## What I built
+**Personal AI Workflow** is the project name. **Personal AI Workspace** describes the kind of software it is. This repository holds the public introduction and design record; application source is being prepared separately.
 
-| Area | Implementation focus | Why it matters |
+## Try the Spaces
+
+These five Spaces are the current demo work. Status checked on 30 October 2026.
+
+| Space | What it is for | Demo status |
 | --- | --- | --- |
-| Conversation archive | Import public ChatGPT share links, preserve source revisions and message links, search and read through browser and MCP/WebMCP interfaces | People and AI can return to the same source and its context |
-| Resumable collection | Persist collection state and handle retries without duplicating imports | Interrupted work can continue without starting over |
-| Knowledge editing | Bind edit proposals to a document revision and reject stale proposals | An older edit cannot silently overwrite a newer version |
-| Note recovery | Preserve unsaved drafts and check the original content and revision before restoring | Conflicting work can be retained separately instead of overwriting the server copy |
-| Document editing | Extend an open-source HWP/HWPX editor with shared UI and AI commands; check saved documents by reopening them | Editing and tool calls follow the same document operations |
+| [Notes](https://paw-notes.nonamegptpro.chatgpt.site/) | Write notes, follow links and arrange ideas | Public; sample notes, browser-local storage and reset |
+| [Office](https://paw-office.nonamegptpro.chatgpt.site/) | Work on HWP and HWPX documents | Public; document work stays in the browser |
+| [Yarns](https://paw-yarns.nonamegptpro.chatgpt.site/) | Keep conversations, search them and return to a particular message | Public; read and search sample conversations without signing in |
+| [Wiki](https://paw-wiki.nonamegptpro.chatgpt.site/) | Write and connect knowledge, with a home for the PAW Spaces | Public; demo edits stay in the browser |
+| [Study](https://paw-study.nonamegptpro.chatgpt.site/) | Read documents side by side and keep study notes and vocabulary | Public; two sample papers, with Korean translations for their first two pages |
 
-Features belong to different applications; availability and read/write permissions vary by application.
+Yarns offers a read-only sample library; signing in opens a separate personal library. Notes starts with five example notes and keeps each browser’s changes separate. Study's remaining pages are available in the original language; automatic translation is not connected. Browser-local changes are not shared with other visitors or synced across devices.
 
-## Design overview
+## The wider workspace
+
+The following Spaces describe the direction of PAW. They are not additional public demos.
+
+| Space | Role |
+| --- | --- |
+| Library | Collect and organize outside sources: articles, media, references and open-source projects. Keep enough context to investigate them later. |
+| Boards | Gather pins into visual collections for comparison, planning and reference. |
+| Forum | Discuss a document or idea through posts and replies, alongside preserved community material. |
+| Git | Work with repositories, issues and development projects. A Gitea-based workspace is being explored. |
+| Studio | Edit images, video and audio. A future Space. |
+
+The visual workspace discussed as Canvas is represented here by the current Notes app. Notes already includes links, a graph and a basic canvas; richer diagrams and workflow views remain development directions.
+
+## How the pieces fit
+
+**Spaces** organize work. **Tools** provide actions such as reading, editing, searching or drawing a graph. **Objects** are the records those actions refer to: a conversation, a message, a document, a file or a discussion. **Core** is the intended set of shared rules for identity, references, revisions and access.
+
+An object should keep its identity when it appears in another Space. A wiki page citing a conversation should point to the saved conversation and revision. Analysis, translations and edit proposals should remain distinguishable from the original.
 
 ```mermaid
-flowchart TB
-    Person[Person] --> UI[Browser interfaces]
-    AI[AI tools] --> Tools[MCP / WebMCP interfaces]
-    UI --> App[Application-specific services]
-    Tools --> App
-    App --> Conversations[Conversation records and source revisions]
-    App --> Knowledge[Knowledge documents and revision checks]
-    App --> Notes[Notes and draft recovery]
-    App --> Documents[Document editing and file output]
+flowchart LR
+    Yarns["Yarns · conversation source"] -->|"message and revision reference"| Wiki["Wiki · knowledge document"]
+    Notes["Notes · working notes"] --> Wiki
+    Wiki -->|"prepare a document"| Office["Office · file output"]
+    Library["Library · outside sources"] --> Study["Study · reading and learning"]
+    Wiki -.->|"relationships and visual arrangement"| Notes
 ```
 
-This is a conceptual view of the collection. The services and data stores are separate; support for an interface in one application does not imply support in every application.
+This is the intended workflow, not a diagram of completed integrations. Each application currently has its own storage and permissions. Shared contracts are still being worked out; a single database is not a requirement. [Read the design notes](docs/DESIGN.md).
 
-## Engineering examples
+## Engineering work behind PAW
 
-- **A retry after interruption:** resume a persisted collection job and recognize already imported material.
-- **A proposal based on an old document:** compare its base revision with the current document and reject the stale update.
-- **An unsaved draft after a server failure:** preserve the local draft, then restore only after checking the original content and revision; retain a separate copy when they differ.
-- **A document save:** reopen the output and compare text, tables and selected formatting. Existing development checks include an 8-page, 16-cell HWPX case; this is a bounded example, not a claim of full format compatibility.
+The applications are developed with AI assistance. My work includes deciding behavior, extending existing software, connecting browser and AI tool interfaces, and checking what survives a save, retry or conflict.
 
-These examples summarize implementation and recorded development checks. This documentation repository does not yet contain the source or fixtures needed to reproduce those checks.
+- **Conversation archives:** keep source revisions and stable message links; resume collection without importing the same material twice.
+- **Knowledge editing:** tie an edit proposal to its base revision, so stale work cannot silently overwrite a newer page.
+- **Note recovery:** preserve an unsaved draft, check the original version before restoring it, and retain conflicting work separately.
+- **Document editing:** use the same document operations from the interface and AI tools, then reopen saved HWPX files to check the result.
 
-## Technology
+These capabilities belong to different application implementations. They are not all available in the public demos. Existing document checks include an eight-page, sixteen-cell HWPX example; that is a bounded test, not a claim of complete format compatibility.
 
-TypeScript / JavaScript, React and Node.js across the applications; Cloudflare Workers, SQLite / D1, MCP and WebMCP in the relevant components. Document editing builds on an existing open-source editor rather than claiming its entire engine as original work.
+The stack varies by application: TypeScript and JavaScript, React, Node.js, Cloudflare Workers and SQLite/D1, with MCP and WebMCP where supported. Office builds on an existing open-source HWP/HWPX editor. Source releases need their own upstream attribution, licenses, setup instructions and reproducible checks.
 
-## Public repository status
+## Next steps
 
-**Initial public overview · 2026-10-28.** This repository currently contains project documentation and an architecture overview. It is not an installable application distribution, and no public demo is linked yet.
+Make the five demos useful to visitors and publish their source with clear setup and attribution. The first cross-Space workflow to establish is a conversation reference in Wiki, a revision-aware edit proposal, and a document that Office can save and reopen.
 
-Next additions:
-
-- Screenshots and short demonstrations using synthetic data.
-- Selected source modules and reproducible examples.
-- Component-level setup instructions, test fixtures and third-party attribution/license files alongside any published code.
-
-Source publication is being prepared separately. Personal records, private conversations and deployment credentials are excluded from this public repository.
+Personal archives, private conversations and deployment credentials stay out of the public repository and demos. The repository keeps its existing `personal-ai-workspace` name so existing links remain valid.
